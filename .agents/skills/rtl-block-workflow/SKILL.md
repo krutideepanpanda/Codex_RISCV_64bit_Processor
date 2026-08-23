@@ -10,4 +10,5 @@ description: Implement or modify a synthesizable RTL block in this RV64 CPU whil
 - Use explicit-width synthesizable SystemVerilog; document reset, clock, and power domain behavior.
 - Encode non-obvious correctness invariants as assertions and add self-checking normal, boundary, illegal, and recovery tests.
 - Run the narrow unit target, Verilator lint, and Yosys synthesis check for the changed block.
-- Return changed paths, commands, results, seeds, and unresolved risks. Do not spawn subagents.
+- Verify `git diff --name-only` stays inside the assigned write set, run `make smoke` before an accepted checkpoint, and obtain independent verification review for critical RTL.
+- Return changed paths, commands, results, seeds, artifact hashes, and unresolved risks. Do not spawn subagents.

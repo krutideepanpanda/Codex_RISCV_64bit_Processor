@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-002",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Hardened recovery inspection and staging, completed five skill forward-tests, locked source revisions, and strengthened release evidence validation",
+  "next_action": "Authenticate sudo for Nix, generate flake.lock, install sv2v through the flake, pass make smoke, authenticate GitHub, and seal foundation-001",
+  "dependency_lock_sha256": "205fe1de28db46c89b2bd3c0b099f80f255567514e5d334c9fd162405c79647e",
+  "pre_checkpoint_changes": [
+    " M .agents/skills/formal-differential-verification/SKILL.md",
+    " M .agents/skills/linux-soc-bringup/SKILL.md",
+    " M .agents/skills/project-continuity/SKILL.md",
+    " M .agents/skills/rtl-block-workflow/SKILL.md",
+    " M .agents/skills/sky130-signoff/SKILL.md",
+    " M Makefile",
+    " M docs/v2-rocm.md",
+    " M scripts/continuity.py",
+    "?? config/release-manifest.schema.json",
+    "?? scripts/run-smoke.sh"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)"
+  }
+}

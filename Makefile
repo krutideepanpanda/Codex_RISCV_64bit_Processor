@@ -9,7 +9,7 @@ RTL_PACKAGE_FILES := $(shell find rtl/pkg -type f \( -name '*.sv' -o -name '*.v'
 RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*.sv' -o -name '*.v' \) -print | sort)
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
 
-.PHONY: help lint unit test synth smoke checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help lint unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
@@ -18,6 +18,7 @@ help:
 	@echo "  test   - run lint and unit targets"
 	@echo "  synth  - synthesize the current implementation top with Yosys"
 	@echo "  smoke  - run foundation lint, unit, and synthesis checks"
+	@echo "  recovery-inspect - inspect interrupted state without mutation"
 	@echo "  checkpoint-check - validate durable project state"
 	@echo "  resume-check     - validate state and rerun deterministic smoke tests"
 	@echo "  checkpoint       - commit/tag an accepted boundary (requires checkpoint variables)"
@@ -54,7 +55,13 @@ synth:
 	$(YOSYS) -q -p 'read_verilog $(BUILD_DIR)/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
 		-l $(BUILD_DIR)/synth.log
 
-smoke: test synth
+smoke:
+	./scripts/run-smoke.sh
+
+smoke-components: test synth
+
+recovery-inspect:
+	python3 scripts/continuity.py inspect
 
 checkpoint-check:
 	python3 scripts/continuity.py check

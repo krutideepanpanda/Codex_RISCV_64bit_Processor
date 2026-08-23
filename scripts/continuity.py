@@ -18,7 +18,6 @@ STATE_PATH = ROOT / ".continuity" / "CURRENT.yaml"
 HANDOFF_PATH = ROOT / ".continuity" / "HANDOFF.md"
 CHECKPOINT_DIR = ROOT / ".continuity" / "checkpoints"
 LOCK_PATH = ROOT / "config" / "dependencies.lock.json"
-ACTIVE_RUN_MARKER = ROOT / "build" / ".active-run"
 REQUIRED_STATE_KEYS = {
     "schema_version", "checkpoint_id", "checkpoint_ref", "mode", "phase",
     "work_packet", "owners", "completed", "next_actions", "blockers",
@@ -86,14 +85,16 @@ def validate_state(*, require_clean: bool | None = None, require_locked: bool = 
         raise ContinuityError(f"CURRENT.yaml is missing keys: {', '.join(absent)}")
     lock = read_json(LOCK_PATH)
     actual_lock_hash = sha256(LOCK_PATH)
+    accepted = state.get("mode") == "accepted"
     recorded = state.get("tool_lock_sha256")
-    if recorded is not None and recorded != actual_lock_hash:
+    if accepted and recorded is not None and recorded != actual_lock_hash:
         raise ContinuityError("dependency lock hash differs from CURRENT.yaml")
     if require_locked:
+        if not (ROOT / "flake.lock").is_file():
+            raise ContinuityError("flake.lock is required for an accepted checkpoint")
         missing = null_paths(lock.get("sources", {}))
         if missing:
             raise ContinuityError("unresolved dependency lock fields: " + ", ".join(missing))
-    accepted = state.get("mode") == "accepted"
     if require_clean is None:
         require_clean = accepted
     dirty = git_status()
@@ -118,26 +119,58 @@ def command_check() -> None:
         print(f"working state contains {len(dirty)} uncommitted path(s); preserved for inspection")
 
 
+def command_inspect() -> None:
+    state = validate_state(require_clean=False)
+    head = run(["git", "rev-parse", "--verify", "HEAD"]).stdout.strip()
+    print(f"HEAD: {head}")
+    print(f"state: {state['mode']} {state['checkpoint_id']} ({state['phase']})")
+    dirty = git_status()
+    if dirty:
+        print("uncommitted paths (preserved):")
+        for line in dirty:
+            print(f"  {line}")
+    else:
+        print("worktree: clean")
+    markers = sorted(ROOT.glob("build/**/.active-run"))
+    if markers:
+        print("active/interrupted run markers:")
+        for marker in markers:
+            print(f"  {marker.relative_to(ROOT)}")
+    else:
+        print("active/interrupted run markers: none")
+
+
 def command_resume() -> None:
+    command_inspect()
     state = validate_state(require_clean=False)
     print(HANDOFF_PATH.read_text(encoding="utf-8").rstrip())
     dirty = git_status()
     if dirty:
         print(f"\nNOTICE: preserving {len(dirty)} uncommitted path(s); no recovery mutation was performed")
     print("\nRunning deterministic smoke regression...")
-    run(["make", "smoke"], capture=False)
+    run(["make", "smoke", "BUILD_DIR=build/resume-check"], capture=False)
     print(f"resume check passed for {state['work_packet']}")
 
 
 def command_checkpoint(args: argparse.Namespace) -> None:
-    if ACTIVE_RUN_MARKER.exists():
-        raise ContinuityError(f"active run marker exists: {ACTIVE_RUN_MARKER.relative_to(ROOT)}")
+    markers = sorted(ROOT.glob("build/**/.active-run"))
+    if markers:
+        names = ", ".join(str(path.relative_to(ROOT)) for path in markers)
+        raise ContinuityError(f"active run marker(s) exist: {names}")
     if run(["git", "tag", "--list", f"checkpoint/{args.id}"]).stdout.strip():
         raise ContinuityError(f"checkpoint/{args.id} already exists")
     mode = "emergency" if args.emergency else "accepted"
     if not args.emergency:
         validate_state(require_clean=False, require_locked=True)
         run(["make", "smoke"], capture=False)
+        unstaged = run(["git", "diff", "--name-only"]).stdout.splitlines()
+        untracked = run(["git", "ls-files", "--others", "--exclude-standard"]).stdout.splitlines()
+        if unstaged or untracked:
+            names = sorted(set(unstaged + untracked))
+            raise ContinuityError(
+                "accepted checkpoint requires explicit staging; review and git add only intended paths: "
+                + ", ".join(names)
+            )
     lock_hash = sha256(LOCK_PATH)
     prior_changes = git_status()
     state = read_json(STATE_PATH)
@@ -150,9 +183,10 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "completed": [args.summary],
         "next_actions": [args.next_action],
         "tool_lock_sha256": lock_hash,
-        "tests": {"make smoke": "not-run (emergency)" if args.emergency else "pass"},
-        "runs": [],
-        "artifacts": [],
+        "tests": {
+            **state.get("tests", {}),
+            "make smoke": "not-run (emergency)" if args.emergency else "pass",
+        },
     })
     write_json(STATE_PATH, state)
     HANDOFF_PATH.write_text(
@@ -174,7 +208,12 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "pre_checkpoint_changes": prior_changes,
         "tests": state["tests"],
     })
-    run(["git", "add", "-A"])
+    if args.emergency:
+        run(["git", "add", "-A"])
+    else:
+        run(["git", "add", str(STATE_PATH.relative_to(ROOT)),
+             str(HANDOFF_PATH.relative_to(ROOT)),
+             str((CHECKPOINT_DIR / f"{args.id}.yaml").relative_to(ROOT))])
     subject = ("wip checkpoint: " if args.emergency else "checkpoint: ") + args.id
     run(["git", "commit", "-m", subject], capture=False)
     if not args.emergency:
@@ -188,13 +227,58 @@ def command_release_gate() -> None:
     state = validate_state(require_clean=True, require_locked=True)
     if state.get("phase") != "v1.0.0":
         raise ContinuityError("release gate requires phase v1.0.0")
-    required = [
-        ROOT / "artifacts/signoff/v1.0.0/SHA256SUMS",
-        ROOT / "artifacts/compliance/v1.0.0/act-report.json",
-    ]
-    missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
-    if missing:
-        raise ContinuityError("release evidence missing: " + ", ".join(missing))
+    release_dir = ROOT / "artifacts" / "release" / "v1.0.0"
+    manifest_path = release_dir / "release-manifest.json"
+    sums_path = release_dir / "SHA256SUMS"
+    if not manifest_path.is_file() or not sums_path.is_file():
+        raise ContinuityError("release-manifest.json and SHA256SUMS are required")
+    manifest = read_json(manifest_path)
+    head = run(["git", "rev-parse", "HEAD"]).stdout.strip()
+    if manifest.get("schema_version") != 1 or manifest.get("phase") != "v1.0.0":
+        raise ContinuityError("invalid release manifest schema or phase")
+    if manifest.get("project_commit") != head:
+        raise ContinuityError("release manifest project_commit does not match HEAD")
+    required_gates = {
+        "lint", "unit", "synth", "formal", "differential", "act",
+        "linux_boot", "coverage", "cdc", "rdc", "power_intent",
+        "scan_drc", "scan_hold", "scan_coverage", "mbist", "equivalence",
+        "setup", "hold", "drc", "lvs", "antenna", "ir_static",
+        "ir_dynamic", "em", "gds",
+    }
+    gates = manifest.get("gates")
+    if not isinstance(gates, dict):
+        raise ContinuityError("release manifest gates must be an object")
+    absent = sorted(required_gates - gates.keys())
+    if absent:
+        raise ContinuityError("release gates missing: " + ", ".join(absent))
+    for name in sorted(required_gates):
+        gate = gates[name]
+        if not isinstance(gate, dict) or gate.get("status") != "pass":
+            raise ContinuityError(f"release gate {name} is not pass")
+        report = ROOT / str(gate.get("report", ""))
+        if not report.is_file() or sha256(report) != gate.get("sha256"):
+            raise ContinuityError(f"release gate {name} report missing or hash mismatch")
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise ContinuityError("release manifest has no artifacts")
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            raise ContinuityError("invalid artifact entry")
+        path = ROOT / str(artifact.get("path", ""))
+        if not path.is_file() or sha256(path) != artifact.get("sha256"):
+            raise ContinuityError(f"release artifact missing or hash mismatch: {path}")
+    sums: dict[str, str] = {}
+    for line in sums_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            raise ContinuityError("malformed SHA256SUMS line")
+        sums[parts[1].lstrip("* ")] = parts[0]
+    for artifact in artifacts:
+        rel = str(artifact["path"])
+        if sums.get(rel) != artifact["sha256"]:
+            raise ContinuityError(f"SHA256SUMS does not cover {rel}")
     print("v1.0 release evidence gate passed")
 
 
@@ -202,6 +286,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("check")
+    subparsers.add_parser("inspect")
     subparsers.add_parser("resume")
     checkpoint = subparsers.add_parser("checkpoint")
     checkpoint.add_argument("--id", required=True)
@@ -217,6 +302,7 @@ def main() -> int:
     args = parse_args()
     try:
         if args.command == "check": command_check()
+        elif args.command == "inspect": command_inspect()
         elif args.command == "resume": command_resume()
         elif args.command == "checkpoint": command_checkpoint(args)
         elif args.command == "release-gate": command_release_gate()

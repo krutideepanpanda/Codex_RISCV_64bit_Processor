@@ -269,6 +269,23 @@ module rv64_decoder import rv64_pkg::*; (
           2'b11: decoded_o.csr_op = CSR_CLEAR;
           default: decoded_o.csr_op = CSR_NONE;
         endcase
+        if (funct3 == 3'b000) begin
+          unique case (instruction_i[31:20])
+            12'h000: decoded_o.system_op = SYS_ECALL;
+            12'h001: decoded_o.system_op = SYS_EBREAK;
+            12'h102: decoded_o.system_op = SYS_SRET;
+            12'h105: decoded_o.system_op = SYS_WFI;
+            12'h180: decoded_o.system_op = SYS_SFENCE_W_INVAL;
+            12'h181: decoded_o.system_op = SYS_SFENCE_INVAL_IR;
+            12'h302: decoded_o.system_op = SYS_MRET;
+            default: begin
+              if (instruction_i[31:25] == 7'b0001001)
+                decoded_o.system_op = SYS_SFENCE_VMA;
+              else if (instruction_i[31:25] == 7'b0001011)
+                decoded_o.system_op = SYS_SINVAL_VMA;
+            end
+          endcase
+        end
       end
       OP_IMM, OP_IMM_32: begin
         decoded_o.illegal = 1'b0;
@@ -408,6 +425,7 @@ module rv64_decoder import rv64_pkg::*; (
       decoded_o.reads_fp_rs3 = 1'b0;
       decoded_o.writes_fp_rd = 1'b0;
       decoded_o.csr_op = CSR_NONE;
+      decoded_o.system_op = SYS_NONE;
       decoded_o.amo_op = AMO_NONE;
       decoded_o.fence_op = FENCE_NONE;
       decoded_o.serialize = 1'b1;

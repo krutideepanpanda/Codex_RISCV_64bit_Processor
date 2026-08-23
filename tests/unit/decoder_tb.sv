@@ -145,11 +145,16 @@ module decoder_tb;
     apply(32'h0031_200f);
     assert_illegal_contained("reserved CBO encoding must trap safely");
     apply(32'h1800_0073);
-    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM,
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM &&
+                decoded.system_op == SYS_SFENCE_W_INVAL,
                 "SFENCE.W.INVAL must decode");
     apply(32'h1620_8073);
-    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM,
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM &&
+                decoded.system_op == SYS_SINVAL_VMA,
                 "SINVAL.VMA must decode");
+    apply(32'h1220_8073);
+    assert_true(!decoded.illegal && decoded.system_op == SYS_SFENCE_VMA,
+                "SFENCE.VMA must have an explicit selector");
 
     // F/D loads, stores, arithmetic, conversions, and reserved rounding modes.
     apply(32'h0001_3087);

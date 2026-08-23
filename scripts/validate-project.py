@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Fast, dependency-free validation for repository control files."""
+"""Fast validation for repository control files and the normative UDB profile."""
 
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import sys
 import tomllib
 from typing import Any
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +26,10 @@ def load_json(path: Path) -> Any:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValidationError(f"{path.relative_to(ROOT)}: {exc}") from exc
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def null_paths(value: Any, prefix: str = "") -> list[str]:
@@ -114,11 +121,51 @@ def validate_skills() -> None:
             raise ValidationError(f"{path.relative_to(ROOT)} needs matching name and description")
 
 
+def validate_udb_profile() -> None:
+    path = ROOT / "verification" / "act" / "codex-rv64-v1.yaml"
+    try:
+        profile = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise ValidationError(f"{path.relative_to(ROOT)}: {exc}") from exc
+    if not isinstance(profile, dict) or profile.get("type") != "fully configured":
+        raise ValidationError("normative UDB profile must be a fully configured object")
+    required = {
+        "I", "M", "A", "F", "D", "C", "Zicsr", "Zifencei", "Zicntr",
+        "Zihpm", "Zba", "Zbb", "Zbs", "Zicbom", "U", "S", "Sm",
+        "Sv39", "Sstc", "Svpbmt", "Svinval", "Svadu", "Sscofpmf", "Smepmp",
+    }
+    entries = profile.get("implemented_extensions", [])
+    names = [entry.get("name") for entry in entries if isinstance(entry, dict)]
+    if len(names) != len(entries) or len(names) != len(set(names)):
+        raise ValidationError("UDB implemented extensions must be named and unique")
+    missing = sorted(required - set(names))
+    forbidden = sorted({"H", "V"} & set(names))
+    if missing or forbidden:
+        raise ValidationError(
+            "UDB profile mismatch; missing=" + ",".join(missing)
+            + " forbidden=" + ",".join(forbidden)
+        )
+    params = profile.get("params", {})
+    expected = {"MXLEN": 64, "PHYS_ADDR_WIDTH": 40, "NUM_PMP_ENTRIES": 16,
+                "CACHE_BLOCK_SIZE": 64, "MISALIGNED_LDST": True}
+    wrong = [name for name, value in expected.items() if params.get(name) != value]
+    if wrong:
+        raise ValidationError("UDB architectural parameters differ: " + ", ".join(wrong))
+    for mode in ("M", "S", "U"):
+        if params.get(f"{mode}_MODE_ENDIANNESS") != "little":
+            raise ValidationError(f"UDB {mode}-mode endianness must be little")
+    evidence_path = ROOT / "verification" / "act" / "udb-validation.json"
+    evidence = load_json(evidence_path)
+    if evidence.get("status") != "pass" or evidence.get("profile_sha256") != sha256(path):
+        raise ValidationError("UDB validation evidence is absent, failed, or stale")
+
+
 def main() -> int:
     try:
         validate_json_control_files()
         validate_toml()
         validate_skills()
+        validate_udb_profile()
     except ValidationError as exc:
         print(f"project validation error: {exc}", file=sys.stderr)
         return 2

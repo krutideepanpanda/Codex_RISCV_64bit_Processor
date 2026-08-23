@@ -10,6 +10,11 @@ module rv64_alu import rv64_pkg::*; (
   logic [31:0] lhs_w;
   logic [31:0] rhs_w;
   logic [31:0] result_w;
+  logic [6:0] clz_result;
+  logic [6:0] ctz_result;
+  logic [6:0] cpop_result;
+  xlen_t orcb_result;
+  xlen_t rev8_result;
 
   function automatic logic [6:0] count_leading_zeros(input xlen_t value);
     logic found;
@@ -73,6 +78,13 @@ module rv64_alu import rv64_pkg::*; (
     rhs_w = rhs_i[31:0];
     result_w = '0;
     result_o = '0;
+    // Evaluate helper functions on every combinational path. This avoids
+    // conditional function-local state in conservative synthesis frontends.
+    clz_result = count_leading_zeros(lhs_i);
+    ctz_result = count_trailing_zeros(lhs_i);
+    cpop_result = population_count(lhs_i);
+    orcb_result = byte_or_combine(lhs_i);
+    rev8_result = reverse_bytes(lhs_i);
 
     unique case (op_i)
       ALU_ADD:    result_o = lhs_i + rhs_i;
@@ -92,16 +104,16 @@ module rv64_alu import rv64_pkg::*; (
       ALU_MINU:   result_o = (lhs_i < rhs_i) ? lhs_i : rhs_i;
       ALU_MAX:    result_o = ($signed(lhs_i) > $signed(rhs_i)) ? lhs_i : rhs_i;
       ALU_MAXU:   result_o = (lhs_i > rhs_i) ? lhs_i : rhs_i;
-      ALU_CLZ:    result_o = xlen_t'(count_leading_zeros(lhs_i));
-      ALU_CTZ:    result_o = xlen_t'(count_trailing_zeros(lhs_i));
-      ALU_CPOP:   result_o = xlen_t'(population_count(lhs_i));
+      ALU_CLZ:    result_o = xlen_t'(clz_result);
+      ALU_CTZ:    result_o = xlen_t'(ctz_result);
+      ALU_CPOP:   result_o = xlen_t'(cpop_result);
       ALU_ROL:    result_o = (lhs_i << shamt) | (lhs_i >> ((-shamt) & 6'h3f));
       ALU_ROR:    result_o = (lhs_i >> shamt) | (lhs_i << ((-shamt) & 6'h3f));
       ALU_SEXTB:  result_o = {{56{lhs_i[7]}}, lhs_i[7:0]};
       ALU_SEXTH:  result_o = {{48{lhs_i[15]}}, lhs_i[15:0]};
       ALU_ZEXTH:  result_o = {48'b0, lhs_i[15:0]};
-      ALU_ORCB:   result_o = byte_or_combine(lhs_i);
-      ALU_REV8:   result_o = reverse_bytes(lhs_i);
+      ALU_ORCB:   result_o = orcb_result;
+      ALU_REV8:   result_o = rev8_result;
       ALU_BCLR:   result_o = lhs_i & ~(64'b1 << shamt);
       ALU_BEXT:   result_o = xlen_t'((lhs_i >> shamt) & 64'b1);
       ALU_BINV:   result_o = lhs_i ^ (64'b1 << shamt);
@@ -141,4 +153,3 @@ module rv64_alu import rv64_pkg::*; (
     endcase
   end
 endmodule
-

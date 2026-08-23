@@ -172,9 +172,22 @@ def command_checkpoint(args: argparse.Namespace) -> None:
     if run(["git", "tag", "--list", f"checkpoint/{args.id}"]).stdout.strip():
         raise ContinuityError(f"checkpoint/{args.id} already exists")
     mode = "emergency" if args.emergency else "accepted"
+    smoke_output: str | None = None
     if not args.emergency:
         validate_state(require_clean=False, require_locked=True)
-        run(["make", "smoke"], capture=False)
+        smoke_result = subprocess.run(
+            ["make", "smoke"], cwd=ROOT, check=False, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        )
+        smoke_output = smoke_result.stdout
+        print(smoke_output, end="")
+        if smoke_result.returncode != 0:
+            failure_log = ROOT / "build" / "checkpoint-failures" / f"{args.id}.smoke.log"
+            failure_log.parent.mkdir(parents=True, exist_ok=True)
+            failure_log.write_text(smoke_output, encoding="utf-8")
+            raise ContinuityError(
+                f"smoke regression failed; preserved log at {failure_log.relative_to(ROOT)}"
+            )
         unstaged = run(["git", "diff", "--name-only"]).stdout.splitlines()
         untracked = run(["git", "ls-files", "--others", "--exclude-standard"]).stdout.splitlines()
         if unstaged or untracked:
@@ -186,6 +199,16 @@ def command_checkpoint(args: argparse.Namespace) -> None:
     lock_hash = sha256(LOCK_PATH)
     prior_changes = git_status()
     state = read_json(STATE_PATH)
+    smoke_log = CHECKPOINT_DIR / f"{args.id}.smoke.log"
+    if smoke_output is not None:
+        smoke_log.write_text(smoke_output, encoding="utf-8")
+    smoke_record: Any = "not-run (emergency)"
+    if smoke_output is not None:
+        smoke_record = {
+            "status": "pass",
+            "log": str(smoke_log.relative_to(ROOT)),
+            "sha256": sha256(smoke_log),
+        }
     state.update({
         "checkpoint_id": args.id,
         "checkpoint_ref": None if args.emergency else f"checkpoint/{args.id}",
@@ -197,9 +220,19 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "tool_lock_sha256": lock_hash,
         "tests": {
             **state.get("tests", {}),
-            "make smoke": "not-run (emergency)" if args.emergency else "pass",
+            "make smoke": smoke_record,
         },
     })
+    if smoke_output is not None:
+        state["runs"] = [
+            *state.get("runs", []),
+            {
+                "id": f"{args.id}-smoke",
+                "status": "pass",
+                "log": str(smoke_log.relative_to(ROOT)),
+                "sha256": sha256(smoke_log),
+            },
+        ]
     write_json(STATE_PATH, state)
     HANDOFF_PATH.write_text(
         "# Current handoff\n\n"
@@ -219,13 +252,22 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "dependency_lock_sha256": lock_hash,
         "pre_checkpoint_changes": prior_changes,
         "tests": state["tests"],
+        "smoke_log": None if smoke_output is None else {
+            "path": str(smoke_log.relative_to(ROOT)),
+            "sha256": sha256(smoke_log),
+        },
     })
     if args.emergency:
         run(["git", "add", "-A"])
     else:
-        run(["git", "add", str(STATE_PATH.relative_to(ROOT)),
-             str(HANDOFF_PATH.relative_to(ROOT)),
-             str((CHECKPOINT_DIR / f"{args.id}.yaml").relative_to(ROOT))])
+        owned_paths = [
+            str(STATE_PATH.relative_to(ROOT)),
+            str(HANDOFF_PATH.relative_to(ROOT)),
+            str((CHECKPOINT_DIR / f"{args.id}.yaml").relative_to(ROOT)),
+        ]
+        if smoke_output is not None:
+            owned_paths.append(str(smoke_log.relative_to(ROOT)))
+        run(["git", "add", *owned_paths])
     subject = ("wip checkpoint: " if args.emergency else "checkpoint: ") + args.id
     run(["git", "commit", "-m", subject], capture=False)
     if not args.emergency:

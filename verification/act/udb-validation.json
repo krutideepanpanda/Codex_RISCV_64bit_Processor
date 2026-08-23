@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "scope": "UDB architecture-configuration schema and constraint validation only; not ACT execution or compliance evidence",
+  "status": "pass",
+  "date": "2026-08-24",
+  "profile": "verification/act/codex-rv64-v1.yaml",
+  "profile_sha256": "1527c2cb7e1ee3eb17cba7f967b6a1806336d03367af68a7e5c7731cff0fd130",
+  "validator": {
+    "act_version": "4.0.0",
+    "act_revision": "a7c99303516f4e668f7488f172043392e23b9dfd",
+    "udb_gem_version": "0.1.9",
+    "udb_gem_sha256": "b74cddd6cc8cf89ce3707a0f3fe55d3401aea0b20254ce3ce0399920fb9d2f7a",
+    "gemfile_lock_sha256": "05039e1ead7274668c34ca28a1078b0a51b58238653195e2099b87a36c5920f6",
+    "bootstrap_ruby_version": "3.4.10"
+  },
+  "command": "bundle exec udb validate cfg verification/act/codex-rv64-v1.yaml",
+  "result": "Config codex-rv64-v1 is valid"
+}

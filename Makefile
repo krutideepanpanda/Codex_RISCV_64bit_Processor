@@ -8,13 +8,15 @@ SV2V ?= sv2v
 RTL_PACKAGE_FILES := $(shell find rtl/pkg -type f \( -name '*.sv' -o -name '*.v' \) | sort)
 RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*.sv' -o -name '*.v' \) -print | sort)
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
+SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
 
-.PHONY: help validate lint unit frontend-unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help validate udb-profile lint unit frontend-unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
 	@echo "  lint   - lint all SystemVerilog with Verilator"
 	@echo "  validate - validate control files, agent config, skills, and dependency locks"
+	@echo "  udb-profile - regenerate the normative profile from pinned ACT data"
 	@echo "  unit   - compile and run fast RTL unit tests"
 	@echo "  frontend-unit - run decompressor and predictor unit tests"
 	@echo "  test   - run lint and unit targets"
@@ -31,6 +33,9 @@ validate:
 	python3 scripts/validate-project.py
 	bash -n scripts/*.sh
 	python3 -m py_compile scripts/*.py
+
+udb-profile:
+	python3 scripts/generate-udb-profile.py
 
 lint:
 	$(VERILATOR) --lint-only --timing -Wall -Wno-DECLFILENAME \
@@ -84,8 +89,8 @@ test: validate lint unit
 
 synth:
 	mkdir -p $(BUILD_DIR)
-	$(SV2V) --write=$(BUILD_DIR)/rtl-yosys.v $(RTL_FILES)
-	$(YOSYS) -q -p 'read_verilog $(BUILD_DIR)/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
+	$(SV2V) --write=$(BUILD_DIR)/rtl-yosys.v $(SYNTH_FILES)
+	$(YOSYS) -q -e '.*' -p 'read_verilog $(BUILD_DIR)/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
 		-l $(BUILD_DIR)/synth.log
 
 smoke:

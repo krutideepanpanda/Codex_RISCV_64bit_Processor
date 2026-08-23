@@ -125,6 +125,19 @@ package rv64_pkg;
     CSR_CLEAR
   } csr_op_e;
 
+  typedef enum logic [3:0] {
+    SYS_NONE,
+    SYS_ECALL,
+    SYS_EBREAK,
+    SYS_SRET,
+    SYS_WFI,
+    SYS_MRET,
+    SYS_SFENCE_VMA,
+    SYS_SINVAL_VMA,
+    SYS_SFENCE_W_INVAL,
+    SYS_SFENCE_INVAL_IR
+  } system_op_e;
+
   typedef struct packed {
     logic       valid;
     logic       illegal;
@@ -141,6 +154,7 @@ package rv64_pkg;
     logic [2:0] funct3;
     logic [11:0] csr_addr;
     csr_op_e    csr_op;
+    system_op_e system_op;
     amo_op_e    amo_op;
     logic       amo_aq;
     logic       amo_rl;

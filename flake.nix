@@ -27,6 +27,7 @@
           git
           gnumake
           python3
+          python3Packages.pyyaml
           sv2v
           symbiyosys
           verilator
@@ -41,7 +42,9 @@
       packages.${system}.openlane = openlane.packages.${system}.default;
 
       checks.${system}.smoke = pkgs.runCommand "codex-rv64-smoke" {
-        nativeBuildInputs = with pkgs; [ bash gcc gnumake python3 sv2v verilator yosys ];
+        nativeBuildInputs = with pkgs; [
+          bash gcc gnumake python3 python3Packages.pyyaml sv2v verilator yosys
+        ];
         src = self;
       } ''
         cp -R "$src" source

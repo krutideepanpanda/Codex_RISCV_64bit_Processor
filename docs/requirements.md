@@ -14,7 +14,7 @@ Only requirements marked `required` may gate a v1 claim. Evidence paths are popu
 | MEM-001 | 32 KiB four-way parity L1I/L1D and 256 KiB eight-way inclusive SECDED L2 | required | pending |
 | SOC-001 | 128-bit AXI4 memory master, 40-bit PA, ACLINT, PLIC, UART, QSPI, GPIO | required | pending |
 | VER-001 | Dual-retirement RVFI/Sail differential testing and required formal properties | required | pending |
-| ACT-001 | Checked-in UDB profile and ACT 4.0 zero unexplained failures | required | pending |
+| ACT-001 | Checked-in UDB profile and ACT 4.0 zero unexplained failures | required | UDB schema/constraint validation passes in `verification/act/udb-validation.json`; DUT ACT execution remains pending |
 | SW-001 | OpenSBI, U-Boot, Linux 6.18 LTS, Debian 13.6 repeated boot qualification | required | pending |
 | PWR-001 | VDD_CORE 1.6-1.95 V, VDD_SOC 1.8 V, VDD_AON 1.8 V | required | pending |
 | PWR-002 | 50 MHz eco, 100 MHz nominal across supported P/T/RC corners, characterized turbo | required | pending |

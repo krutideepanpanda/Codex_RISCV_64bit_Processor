@@ -1,10 +1,10 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-003` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-004` is `emergency` in phase `foundation`.
 
-Completed: Added deterministic foundation validation, public/retirement contracts, reviewed RV64C and predictor primitives, richer integer/FP decode metadata, and 65647 passing unit checks
+Completed: Real UDB validation passes; deterministic UDB profile, explicit system decode, warning-clean ALU synthesis, and 65,648-check smoke suite are preserved.
 
-Next action: Install pinned Nix, generate flake.lock, validate UDB profile, pass make smoke, authenticate GitHub, and seal foundation-001
+Next action: Create /nix with user authorization; install pinned Nix and generate flake.lock; run Nix smoke; authenticate GitHub; create and push public repository; then seal foundation-001.
 
 Resume steps:
 

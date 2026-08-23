@@ -51,6 +51,7 @@ incomplete. `scripts/bootstrap-tools.sh` will provision pinned project-local
 tooling rather than depend on that launcher.
 
 See [docs/architecture.md](docs/architecture.md),
+[docs/architectural-parameters.md](docs/architectural-parameters.md),
 [docs/verification.md](docs/verification.md), and
 [docs/physical-design.md](docs/physical-design.md) for the binding v1 contract.
 

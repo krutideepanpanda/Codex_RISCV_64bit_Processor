@@ -11,6 +11,10 @@
     }
   },
   "local_tools": {
+    "pyyaml": {
+      "version": "6.0.2",
+      "purpose": "deterministic UDB profile generation and local structural validation"
+    },
     "verilator": {
       "version": "5.050",
       "source_sha256": "ec6723f30c1798b1fbbbed97364f09c431fb4875577c314f37240e99b60a4a04"
@@ -60,15 +64,24 @@
       "upstream_makefile_sha256": "1ce27de21114d78ab2a9f65a8d81e5afa17277c0d8f12a76daee4c1083927393"
     },
     "riscv/sail-riscv": {
-      "version": "0.11",
-      "revision": "da838a7a6a06464caa1c61fe55b20b8e30d1aee1"
+      "version": "0.10",
+      "revision": "a33475aeb80090127433b5a8b30e717edaa19e71",
+      "selection_reason": "ACT 4.0 rejects Sail versions other than exactly 0.10"
     },
     "riscv-software-src/riscv-unified-db": {
       "revision": "0ba4bc0facb264f640622ab1042ca480a0714bc8"
     },
     "riscv/riscv-arch-test": {
       "version": "4.0.0",
-      "revision": "a7c99303516f4e668f7488f172043392e23b9dfd"
+      "revision": "a7c99303516f4e668f7488f172043392e23b9dfd",
+      "ruby_version": "3.4.9",
+      "udb_gem_version": "0.1.9",
+      "udb_gem_sha256": "b74cddd6cc8cf89ce3707a0f3fe55d3401aea0b20254ce3ce0399920fb9d2f7a",
+      "gemfile_lock_sha256": "05039e1ead7274668c34ca28a1078b0a51b58238653195e2099b87a36c5920f6",
+      "profile_source_sha256": {
+        "config/sail/sail-rv64-max/sail-rv64-max.yaml": "924210a3cad93de4c879e825923cc4c712a1756e795de6d79a5468e4163d8de9",
+        "config/cores/cvw/cvw-rv64gc/cvw-rv64gc.yaml": "f1b47a80701386f89450d2e9c26a2afb70980c7449480c91f0616b050b299224"
+      }
     },
     "YosysHQ/sby": {
       "revision": "b1a1e98cba941ec8433f8dc27f416cd7bb7f14be"

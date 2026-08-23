@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-004",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Real UDB validation passes; deterministic UDB profile, explicit system decode, warning-clean ALU synthesis, and 65,648-check smoke suite are preserved.",
+  "next_action": "Create /nix with user authorization; install pinned Nix and generate flake.lock; run Nix smoke; authenticate GitHub; create and push public repository; then seal foundation-001.",
+  "dependency_lock_sha256": "bbd2026fe554b54b0cf0a11564ad39e16eec9b3da0c3fdf87e19c4bc73b5fd61",
+  "pre_checkpoint_changes": [
+    " M Makefile",
+    " M README.md",
+    " M config/dependencies.lock.json",
+    " M docs/requirements.md",
+    " M flake.nix",
+    " M rtl/core/rv64_alu.sv",
+    " M rtl/core/rv64_decoder.sv",
+    " M rtl/pkg/rv64_pkg.sv",
+    " M scripts/continuity.py",
+    " M scripts/validate-project.py",
+    " M tests/unit/decoder_tb.sv",
+    "?? docs/architectural-parameters.md",
+    "?? scripts/generate-udb-profile.py",
+    "?? verification/act/README.md",
+    "?? verification/act/codex-rv64-v1.yaml",
+    "?? verification/act/udb-validation.json"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)"
+  },
+  "smoke_log": null
+}

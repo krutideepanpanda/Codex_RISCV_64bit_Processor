@@ -22,6 +22,10 @@
     }
   },
   "sources": {
+    "actions/checkout": {
+      "version": "v4.2.2",
+      "revision": "11bd71901bbe5b1630ceea73d27597364c9af683"
+    },
     "nixpkgs": {
       "revision": "805a384895c696f802a9bf5bf4720f37385df547",
       "nar_hash": "sha256-F/TKWETwB5RaR8owkPPi+SPJh83AQsm6KrQAlJ8v/uA="

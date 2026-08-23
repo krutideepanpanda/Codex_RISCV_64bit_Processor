@@ -28,6 +28,15 @@ module decoder_tb;
     if (!condition) $fatal(1, "%s: instruction=%08h", message, instruction);
   endtask
 
+  task automatic assert_illegal_contained(input string message);
+    assert_true(decoded.illegal && decoded.uop_class == UOP_SYSTEM &&
+                !decoded.reads_rs1 && !decoded.reads_rs2 &&
+                !decoded.reads_rs3 && !decoded.writes_rd &&
+                decoded.csr_op == CSR_NONE && decoded.amo_op == AMO_NONE &&
+                decoded.fence_op == FENCE_NONE && decoded.serialize,
+                message);
+  endtask
+
   initial begin
     checks = 0;
     instruction = '0;
@@ -100,13 +109,81 @@ module decoder_tb;
 
     // LR.D requires rs2=x0 and SYSTEM funct3=100 is reserved.
     apply(32'h1011_30af);
-    assert_true(decoded.illegal, "LR.D with nonzero rs2 must trap");
+    assert_illegal_contained("LR.D with nonzero rs2 must trap safely");
+    apply(32'h1001_30af);
+    assert_true(!decoded.illegal && decoded.amo_op == AMO_LR &&
+                !decoded.reads_rs2 && !decoded.amo_aq && !decoded.amo_rl,
+                "LR.D controls must be preserved");
+    apply(32'h1e31_30af);
+    assert_true(!decoded.illegal && decoded.amo_op == AMO_SC &&
+                decoded.reads_rs2 && decoded.amo_aq && decoded.amo_rl,
+                "SC.D aq/rl controls must be preserved");
     apply(32'h0000_4073);
-    assert_true(decoded.illegal, "reserved SYSTEM funct3 must trap");
+    assert_illegal_contained("reserved SYSTEM funct3 must trap safely");
+
+    // CSR address and operation survive decode.
+    apply(32'h3003_22f3);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_CSR &&
+                decoded.csr_addr == 12'h300 && decoded.csr_op == CSR_SET &&
+                decoded.reads_rs1 && decoded.writes_rd,
+                "CSRRS metadata must be preserved");
+
+    // Exact FENCE, FENCE.I, Zicbom, and Svinval legality.
+    apply(32'h0330_000f);
+    assert_true(!decoded.illegal && decoded.fence_op == FENCE_MEMORY &&
+                decoded.fence_pred == 4'h3 && decoded.fence_succ == 4'h3,
+                "FENCE metadata must be preserved");
+    apply(32'h0000_100f);
+    assert_true(!decoded.illegal && decoded.fence_op == FENCE_INSTRUCTION,
+                "canonical FENCE.I must decode");
+    apply(32'h0000_108f);
+    assert_illegal_contained("FENCE.I with nonzero rd must trap safely");
+    apply(32'h0011_200f);
+    assert_true(!decoded.illegal && decoded.fence_op == FENCE_CBO_CLEAN &&
+                decoded.reads_rs1 && decoded.rs1 == 5'd2,
+                "CBO.CLEAN metadata must be preserved");
+    apply(32'h0031_200f);
+    assert_illegal_contained("reserved CBO encoding must trap safely");
+    apply(32'h1800_0073);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM,
+                "SFENCE.W.INVAL must decode");
+    apply(32'h1620_8073);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_SYSTEM,
+                "SINVAL.VMA must decode");
+
+    // F/D loads, stores, arithmetic, conversions, and reserved rounding modes.
+    apply(32'h0001_3087);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_LOAD &&
+                decoded.reads_rs1 && decoded.writes_fp_rd && !decoded.writes_rd,
+                "FLD register-file controls");
+    apply(32'h0021_3427);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_STORE &&
+                decoded.reads_rs1 && decoded.reads_fp_rs2,
+                "FSD register-file controls");
+    apply(32'h0252_01d3);
+    assert_true(!decoded.illegal && decoded.uop_class == UOP_FPU &&
+                decoded.fp_funct7 == 7'b0000001 &&
+                decoded.reads_fp_rs1 && decoded.reads_fp_rs2 &&
+                decoded.writes_fp_rd,
+                "FADD.D controls");
+    apply(32'h0252_51d3);
+    assert_illegal_contained("reserved static FP rounding mode must trap safely");
+    apply(32'h5a02_71d3);
+    assert_true(!decoded.illegal && decoded.rounding_mode == 3'b111 &&
+                decoded.reads_fp_rs1 && !decoded.reads_fp_rs2,
+                "FSQRT.D dynamic rounding controls");
+    apply(32'he202_11d3);
+    assert_true(!decoded.illegal && decoded.writes_rd &&
+                !decoded.writes_fp_rd && decoded.reads_fp_rs1,
+                "FCLASS.D integer destination controls");
+    apply(32'hf202_01d3);
+    assert_true(!decoded.illegal && decoded.reads_rs1 &&
+                !decoded.reads_fp_rs1 && decoded.writes_fp_rd,
+                "FMV.D.X cross-register-file controls");
 
     // Invalid branch funct3=010.
     apply(32'h0020_a863);
-    assert_true(decoded.illegal, "reserved branch must trap");
+    assert_illegal_contained("reserved branch must trap safely");
 
     $display("PASS: %0d decoder vectors", checks);
     $finish;

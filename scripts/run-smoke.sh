@@ -10,4 +10,4 @@ mkdir -p "$(dirname "$marker")"
 : > "$marker"
 trap 'unlink "$marker" 2>/dev/null || true' EXIT INT TERM
 
-exec make -C "$repo_root" smoke-components BUILD_DIR="$build_dir"
+make -C "$repo_root" smoke-components BUILD_DIR="$build_dir"

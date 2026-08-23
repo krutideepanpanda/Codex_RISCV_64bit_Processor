@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-003",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Added deterministic foundation validation, public/retirement contracts, reviewed RV64C and predictor primitives, richer integer/FP decode metadata, and 65647 passing unit checks",
+  "next_action": "Install pinned Nix, generate flake.lock, validate UDB profile, pass make smoke, authenticate GitHub, and seal foundation-001",
+  "dependency_lock_sha256": "33f248f7fe0735948afe3d2edeee4e01f3bb3f60543bf65c8ba652b95128f2b1",
+  "pre_checkpoint_changes": [
+    " M Makefile",
+    " M config/dependencies.lock.json",
+    " M rtl/core/rv64_decoder.sv",
+    " M rtl/pkg/rv64_pkg.sv",
+    " M scripts/continuity.py",
+    " M scripts/run-smoke.sh",
+    " M tests/unit/decoder_tb.sv",
+    "?? .github/workflows/ci.yml",
+    "?? coordination/work-packages.yaml",
+    "?? docs/interfaces.md",
+    "?? docs/retirement-contract.md",
+    "?? rtl/frontend/decompress/rv64c_decompress.sv",
+    "?? rtl/frontend/predictor/rv64_btb.sv",
+    "?? rtl/frontend/predictor/rv64_ras.sv",
+    "?? scripts/validate-project.py",
+    "?? tests/frontend/decompress/rv64c_decompress_tb.sv",
+    "?? tests/frontend/predictor/btb_tb.sv",
+    "?? tests/frontend/predictor/ras_tb.sv"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)"
+  }
+}

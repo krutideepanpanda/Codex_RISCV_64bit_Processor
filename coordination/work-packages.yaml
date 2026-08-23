@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "concurrency_limit": 4,
+  "integrator_owned": [
+    "rtl/pkg/**",
+    "rtl/rv64_core.sv",
+    "rtl/codex_rv64_soc.sv",
+    "config/**",
+    ".continuity/**",
+    "coordination/**",
+    "Makefile"
+  ],
+  "packages": [
+    {
+      "id": "foundation-001",
+      "owner": "primary-architect",
+      "depends_on": [],
+      "write_set": ["AGENTS.md", ".codex/**", ".agents/skills/**", ".continuity/**", "docs/**", "config/**", "scripts/**", "flake.*", "Makefile"],
+      "gate": "accepted checkpoint checkpoint/foundation-001"
+    },
+    {
+      "id": "frontend-001",
+      "owner": "frontend-worker",
+      "depends_on": ["foundation-001"],
+      "write_set": ["rtl/frontend/**", "tests/frontend/**"],
+      "reviewer": "verification-reviewer",
+      "gate": "v0.1.0 frontend regression"
+    },
+    {
+      "id": "backend-001",
+      "owner": "backend-worker",
+      "depends_on": ["frontend-001"],
+      "write_set": ["rtl/backend/**", "rtl/execution/**", "tests/backend/**", "tests/execution/**"],
+      "reviewer": "verification-reviewer",
+      "gate": "v0.2.0 backend regression"
+    },
+    {
+      "id": "memory-001",
+      "owner": "memory-worker",
+      "depends_on": ["backend-001"],
+      "write_set": ["rtl/memory/**", "tests/memory/**"],
+      "reviewer": "verification-reviewer",
+      "gate": "v0.3.0 privilege/MMU regression"
+    },
+    {
+      "id": "soc-linux-001",
+      "owner": "soc-linux-worker",
+      "depends_on": ["memory-001"],
+      "write_set": ["rtl/soc/**", "firmware/**", "software/**", "tests/soc/**"],
+      "reviewer": "verification-reviewer",
+      "gate": "v0.4.0 repeated Linux boot"
+    },
+    {
+      "id": "dft-physical-001",
+      "owner": "physical-dft-reviewer",
+      "depends_on": ["soc-linux-001"],
+      "write_set": ["physical/**", "openlane/**", "dft/**", "power/**", "reports/**"],
+      "reviewer": "verification-reviewer",
+      "gate": "v0.9.0 physical signoff candidate"
+    },
+    {
+      "id": "release-001",
+      "owner": "primary-architect",
+      "depends_on": ["dft-physical-001"],
+      "write_set": ["artifacts/release/v1.0.0/**", ".continuity/**"],
+      "gate": "v1.0.0 release-gate"
+    }
+  ]
+}

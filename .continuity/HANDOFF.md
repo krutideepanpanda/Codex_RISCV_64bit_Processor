@@ -1,10 +1,10 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-002` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-003` is `emergency` in phase `foundation`.
 
-Completed: Hardened recovery inspection and staging, completed five skill forward-tests, locked source revisions, and strengthened release evidence validation
+Completed: Added deterministic foundation validation, public/retirement contracts, reviewed RV64C and predictor primitives, richer integer/FP decode metadata, and 65647 passing unit checks
 
-Next action: Authenticate sudo for Nix, generate flake.lock, install sv2v through the flake, pass make smoke, authenticate GitHub, and seal foundation-001
+Next action: Install pinned Nix, generate flake.lock, validate UDB profile, pass make smoke, authenticate GitHub, and seal foundation-001
 
 Resume steps:
 

@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-002",
+  "checkpoint_id": "foundation-recovery-003",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-002",
+  "work_packet": "foundation-recovery-003",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Hardened recovery inspection and staging, completed five skill forward-tests, locked source revisions, and strengthened release evidence validation"
+    "Added deterministic foundation validation, public/retirement contracts, reviewed RV64C and predictor primitives, richer integer/FP decode metadata, and 65647 passing unit checks"
   ],
   "next_actions": [
-    "Authenticate sudo for Nix, generate flake.lock, install sv2v through the flake, pass make smoke, authenticate GitHub, and seal foundation-001"
+    "Install pinned Nix, generate flake.lock, validate UDB profile, pass make smoke, authenticate GitHub, and seal foundation-001"
   ],
   "blockers": [
     "GitHub CLI authentication is invalid",
@@ -24,7 +24,7 @@
   },
   "seeds": [],
   "waivers": [],
-  "tool_lock_sha256": "205fe1de28db46c89b2bd3c0b099f80f255567514e5d334c9fd162405c79647e",
+  "tool_lock_sha256": "33f248f7fe0735948afe3d2edeee4e01f3bb3f60543bf65c8ba652b95128f2b1",
   "runs": [],
   "artifacts": []
 }

@@ -9,12 +9,14 @@ RTL_PACKAGE_FILES := $(shell find rtl/pkg -type f \( -name '*.sv' -o -name '*.v'
 RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*.sv' -o -name '*.v' \) -print | sort)
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
 
-.PHONY: help lint unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help validate lint unit frontend-unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
 	@echo "  lint   - lint all SystemVerilog with Verilator"
+	@echo "  validate - validate control files, agent config, skills, and dependency locks"
 	@echo "  unit   - compile and run fast RTL unit tests"
+	@echo "  frontend-unit - run decompressor and predictor unit tests"
 	@echo "  test   - run lint and unit targets"
 	@echo "  synth  - synthesize the current implementation top with Yosys"
 	@echo "  smoke  - run foundation lint, unit, and synthesis checks"
@@ -25,29 +27,60 @@ help:
 	@echo "  gds    - run the pinned local OpenRAM/OpenLane signoff flow"
 	@echo "  clean  - remove generated build output"
 
+validate:
+	python3 scripts/validate-project.py
+	bash -n scripts/*.sh
+	python3 -m py_compile scripts/*.py
+
 lint:
 	$(VERILATOR) --lint-only --timing -Wall -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module rv64_alu $(RTL_FILES)
 
-unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit
+unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
 	$(BUILD_DIR)/alu_unit
 	$(BUILD_DIR)/decoder_unit
 
+frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit
+	$(BUILD_DIR)/decompress_unit
+	$(BUILD_DIR)/ras_unit
+	$(BUILD_DIR)/btb_unit
+
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
 		--top-module alu_tb -Mdir $(BUILD_DIR)/obj_alu \
 		-o ../alu_unit $(RTL_FILES) tests/unit/alu_tb.sv
 
 $(BUILD_DIR)/decoder_unit: $(RTL_FILES) tests/unit/decoder_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module decoder_tb -Mdir $(BUILD_DIR)/obj_decoder \
 		-o ../decoder_unit $(RTL_FILES) tests/unit/decoder_tb.sv
 
-test: lint unit
+$(BUILD_DIR)/decompress_unit: $(RTL_FILES) tests/frontend/decompress/rv64c_decompress_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+		--top-module rv64c_decompress_tb -Mdir $(BUILD_DIR)/obj_decompress \
+		-o ../decompress_unit $(RTL_FILES) tests/frontend/decompress/rv64c_decompress_tb.sv
+
+$(BUILD_DIR)/ras_unit: $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+		--top-module ras_tb -Mdir $(BUILD_DIR)/obj_ras \
+		-o ../ras_unit $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
+
+$(BUILD_DIR)/btb_unit: $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+		--top-module btb_tb -Mdir $(BUILD_DIR)/obj_btb \
+		-o ../btb_unit $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
+
+test: validate lint unit
 
 synth:
 	mkdir -p $(BUILD_DIR)

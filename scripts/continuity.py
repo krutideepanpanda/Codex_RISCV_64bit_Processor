@@ -60,6 +60,18 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def repository_path(value: Any, *, purpose: str) -> Path:
+    """Resolve a manifest path while preventing escape from the repository."""
+    if not isinstance(value, str) or not value or Path(value).is_absolute():
+        raise ContinuityError(f"{purpose} must be a non-empty repository-relative path")
+    candidate = (ROOT / value).resolve()
+    try:
+        candidate.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise ContinuityError(f"{purpose} escapes the repository: {value}") from exc
+    return candidate
+
+
 def null_paths(value: Any, prefix: str = "") -> list[str]:
     missing: list[str] = []
     if value is None:
@@ -255,7 +267,7 @@ def command_release_gate() -> None:
         gate = gates[name]
         if not isinstance(gate, dict) or gate.get("status") != "pass":
             raise ContinuityError(f"release gate {name} is not pass")
-        report = ROOT / str(gate.get("report", ""))
+        report = repository_path(gate.get("report"), purpose=f"release gate {name} report")
         if not report.is_file() or sha256(report) != gate.get("sha256"):
             raise ContinuityError(f"release gate {name} report missing or hash mismatch")
     artifacts = manifest.get("artifacts")
@@ -264,7 +276,7 @@ def command_release_gate() -> None:
     for artifact in artifacts:
         if not isinstance(artifact, dict):
             raise ContinuityError("invalid artifact entry")
-        path = ROOT / str(artifact.get("path", ""))
+        path = repository_path(artifact.get("path"), purpose="release artifact path")
         if not path.is_file() or sha256(path) != artifact.get("sha256"):
             raise ContinuityError(f"release artifact missing or hash mismatch: {path}")
     sums: dict[str, str] = {}

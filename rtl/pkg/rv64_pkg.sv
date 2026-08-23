@@ -94,9 +94,41 @@ package rv64_pkg;
     OPB_IMM
   } operand_b_sel_e;
 
+  typedef enum logic [3:0] {
+    AMO_NONE,
+    AMO_LR,
+    AMO_SC,
+    AMO_SWAP,
+    AMO_ADD,
+    AMO_XOR,
+    AMO_AND,
+    AMO_OR,
+    AMO_MIN,
+    AMO_MAX,
+    AMO_MINU,
+    AMO_MAXU
+  } amo_op_e;
+
+  typedef enum logic [2:0] {
+    FENCE_NONE,
+    FENCE_MEMORY,
+    FENCE_INSTRUCTION,
+    FENCE_CBO_INVAL,
+    FENCE_CBO_CLEAN,
+    FENCE_CBO_FLUSH
+  } fence_op_e;
+
+  typedef enum logic [1:0] {
+    CSR_NONE,
+    CSR_WRITE,
+    CSR_SET,
+    CSR_CLEAR
+  } csr_op_e;
+
   typedef struct packed {
     logic       valid;
     logic       illegal;
+    logic [31:0] instruction;
     uop_class_e uop_class;
     alu_op_e    alu_op;
     imm_kind_e  imm_kind;
@@ -107,10 +139,26 @@ package rv64_pkg;
     arch_reg_t  rs3;
     arch_reg_t  rd;
     logic [2:0] funct3;
+    logic [11:0] csr_addr;
+    csr_op_e    csr_op;
+    amo_op_e    amo_op;
+    logic       amo_aq;
+    logic       amo_rl;
+    fence_op_e  fence_op;
+    logic [3:0] fence_fm;
+    logic [3:0] fence_pred;
+    logic [3:0] fence_succ;
+    logic [6:0] fp_funct7;
+    logic [1:0] fp_fmt;
+    logic [2:0] rounding_mode;
     logic       reads_rs1;
     logic       reads_rs2;
     logic       reads_rs3;
     logic       writes_rd;
+    logic       reads_fp_rs1;
+    logic       reads_fp_rs2;
+    logic       reads_fp_rs3;
+    logic       writes_fp_rd;
     logic       word_op;
     logic       serialize;
   } decode_t;

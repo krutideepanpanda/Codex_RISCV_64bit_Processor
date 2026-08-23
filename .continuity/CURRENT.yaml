@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "checkpoint_id": "foundation-recovery-001",
+  "checkpoint_ref": null,
+  "mode": "emergency",
+  "phase": "foundation",
+  "work_packet": "foundation-recovery-001",
+  "owners": [
+    "architect_integrator"
+  ],
+  "completed": [
+    "Recovered draft, continuity system, project agents and skills, reconciled requirements, and decoder legality fixes"
+  ],
+  "next_actions": [
+    "Complete Nix installation, generate flake.lock, pass smoke, forward-test skills, and seal foundation-001"
+  ],
+  "blockers": [
+    "GitHub CLI authentication is invalid",
+    "Nix is not installed",
+    "OpenLane and external dependency commits are not yet locked"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)"
+  },
+  "seeds": [],
+  "waivers": [],
+  "tool_lock_sha256": "205fe1de28db46c89b2bd3c0b099f80f255567514e5d334c9fd162405c79647e",
+  "runs": [],
+  "artifacts": []
+}

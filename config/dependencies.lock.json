@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "policy": "Git dependencies are pinned by immutable commit; archives and generated bundles additionally require SHA-256 manifests.",
+  "host_bootstrap": {
+    "nix": {
+      "version": "2.35.2",
+      "installer_url": "https://nixos.org/nix/install",
+      "installer_sha256": "9adda97297d9e8ab360df95c729eabff4f4f93d6db091953c3a68f29e3fb130c",
+      "x86_64_linux_tarball_sha256": "0c3960a9792331a22081c3c7a5d8465db9b17c50b3acdf18587fa4c6f2cb1158",
+      "installation_mode": "single-user because the official multi-user installer rejects SELinux-enabled Bazzite"
+    }
+  },
+  "local_tools": {
+    "verilator": {
+      "version": "5.050",
+      "source_sha256": "ec6723f30c1798b1fbbbed97364f09c431fb4875577c314f37240e99b60a4a04"
+    },
+    "yosys": {
+      "version": "0.67+post",
+      "revision": "b8e7da6f40ae8f552c116bf6c359b07c6533e159",
+      "source_sha256": "608d758a6efc73c9f866b0a822aa2f788c2889fcb70dcdcc0e758009465049f6"
+    }
+  },
+  "sources": {
+    "nixpkgs": {
+      "revision": "805a384895c696f802a9bf5bf4720f37385df547",
+      "nar_hash": "sha256-F/TKWETwB5RaR8owkPPi+SPJh83AQsm6KrQAlJ8v/uA="
+    },
+    "pulp-platform/axi": {
+      "version": "v0.39.10",
+      "revision": "a8c53cee2520d328d390c507c88818e8ac144c8c"
+    },
+    "pulp-platform/common_cells": {
+      "version": "v1.21.0",
+      "revision": "6aeee85d0a34fedc06c14f04fd6363c9f7b4eeea"
+    },
+    "efabless/openlane2": {
+      "version": "2.3.10",
+      "revision": "b89f7866fd3d19da470220baf89d0e7804962941",
+      "upstream_flake_lock_sha256": "c922b53ad814feefd9b32a294ddd93d36aff2232fb3ef5d04606e4af084a6496",
+      "nix_eda_revision": "8200035e013b010c6fa396e9f826dd2837774686",
+      "nix_eda_flake_lock_sha256": "d0bb0c093a0df9ef3f26e542ec51ba13a9a6aff5407e510fb3a7d5392d1137c1"
+    },
+    "efabless/open_pdks": {
+      "revision": "fa87f8f4bbcc7255b6f0c0fb506960f531ae2392",
+      "pdk_variant": "sky130A",
+      "standard_cell_library": "sky130_fd_sc_hd"
+    },
+    "The-OpenROAD-Project/OpenROAD": {
+      "qualification_baseline_revision": "f34c1bcd954a4ecfe33233466e03782cb2d5442d",
+      "release_binary_revision_source": "OpenLane 2.3.10 Nix closure"
+    },
+    "VLSIDA/OpenRAM": {
+      "branch": "stable",
+      "revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+      "upstream_makefile_sha256": "1ce27de21114d78ab2a9f65a8d81e5afa17277c0d8f12a76daee4c1083927393"
+    },
+    "riscv/sail-riscv": {
+      "version": "0.11",
+      "revision": "da838a7a6a06464caa1c61fe55b20b8e30d1aee1"
+    },
+    "riscv-software-src/riscv-unified-db": {
+      "revision": "0ba4bc0facb264f640622ab1042ca480a0714bc8"
+    },
+    "riscv/riscv-arch-test": {
+      "version": "4.0.0",
+      "revision": "a7c99303516f4e668f7488f172043392e23b9dfd"
+    },
+    "YosysHQ/sby": {
+      "revision": "b1a1e98cba941ec8433f8dc27f416cd7bb7f14be"
+    },
+    "Boolector/boolector": {
+      "version": "3.2.4",
+      "revision": "393cdfba3735d334bb4e6525500b8a0280dd41e6"
+    },
+    "riscv-collab/riscv-gnu-toolchain": {
+      "revision": "9b5791fa9f64e13022ad055c82faec3f1a1b1e48",
+      "submodule_lock": "capture in the v0.3 ACT toolchain derivation"
+    },
+    "riscv-software-src/opensbi": {
+      "version": "v1.9",
+      "revision": "cbf9f6734dd85a982c63e3cb5db7ffe09da839ca"
+    },
+    "u-boot/u-boot": {
+      "version": "v2026.07",
+      "revision": "ece349ade2973e220f524ce59e59711cc919263f"
+    },
+    "torvalds/linux": {
+      "version": "v6.18",
+      "revision": "7d0a66e4bb9081d75c82ec4957c50034cb0ea449",
+      "stable_patch_policy": "freeze one v6.18.y tag when v0.4 software qualification starts"
+    },
+    "debian/rootfs": {
+      "release": "13.6",
+      "suite": "trixie",
+      "architecture": "riscv64",
+      "component": "main",
+      "snapshot_policy": "freeze signed InRelease files and every package hash when v0.4 rootfs generation starts"
+    }
+  }
+}

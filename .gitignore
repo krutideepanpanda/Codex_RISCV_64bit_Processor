@@ -1,0 +1,24 @@
+# Generated simulation and synthesis output
+build/
+runs/
+artifacts/
+*.fst
+*.vcd
+*.log
+
+# Tool-local state
+.venv/
+__pycache__/
+.pytest_cache/
+.cache/
+
+# Generated firmware and disk images
+firmware/build/
+images/
+
+# OpenLane/OpenRAM dependencies are fetched reproducibly, not committed.
+pdk/
+tools/
+third_party/*/
+!third_party/README.md
+

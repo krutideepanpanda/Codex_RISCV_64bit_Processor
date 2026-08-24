@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-012",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Made TAGE set/way table addresses explicitly sized for pinned Verilator 5.018, added nonzero and maximum address tests, passed 65,779 local checks plus lint/synthesis, and received independent verification READY.",
+  "next_actions": [
+    "Push foundation-recovery-012 and inspect the pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence or fix any remaining pinned-tool warnings.",
+    "Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration."
+  ],
+  "dependency_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
+  "pre_checkpoint_changes": [
+    " M rtl/frontend/predictor/rv64_tage_lite.sv",
+    " M tests/frontend/predictor/tage_lite_tb.sv"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
+  },
+  "smoke_log": null
+}

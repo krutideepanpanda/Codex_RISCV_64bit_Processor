@@ -1,13 +1,13 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-011` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-012` is `emergency` in phase `foundation`.
 
-Completed: Made the smoke flow hermetic by resolving Makefile Bash through PATH and patching repository script shebangs inside the Nix derivation; local 65,777-check smoke and synthesis pass.
+Completed: Made TAGE set/way table addresses explicitly sized for pinned Verilator 5.018, added nonzero and maximum address tests, passed 65,779 local checks plus lint/synthesis, and received independent verification READY.
 
 Next actions:
 
-1. Push foundation-recovery-011 and inspect the hermetic pinned Nix/OpenLane CI run.
-2. Record passing CI evidence and update the foundation gate.
+1. Push foundation-recovery-012 and inspect the pinned Nix/OpenLane CI run.
+2. Record passing CI evidence or fix any remaining pinned-tool warnings.
 3. Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration.
 
 Resume steps:

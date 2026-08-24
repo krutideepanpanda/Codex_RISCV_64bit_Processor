@@ -9,6 +9,8 @@ module tage_lite_tb;
   localparam int unsigned BASE_INDEX_W = $clog2(BASE_ENTRIES);
   localparam int unsigned INDEX_W = $clog2(TAGGED_SETS);
   localparam int unsigned WAY_W = $clog2(TAGGED_WAYS);
+  localparam int unsigned TAGGED_ENTRIES = TAGGED_SETS * TAGGED_WAYS;
+  localparam int unsigned ENTRY_INDEX_W = $clog2(TAGGED_ENTRIES);
   localparam logic [1:0] PROVIDER_BASE = 2'd0;
   localparam logic [1:0] PROVIDER_COMP0 = 2'd1;
   localparam logic [1:0] PROVIDER_COMP1 = 2'd2;
@@ -85,6 +87,21 @@ module tage_lite_tb;
     train_comp1_index = '0; train_comp0_tag = '0; train_comp1_tag = '0; flush_valid = 0;
     repeat (2) @(posedge clk);
     rst_ni = 1;
+
+    // Exercise the explicit-width set/way flattening at nonzero and maximum
+    // addresses before any training mutates the tables.
+    @(negedge clk);
+    train_comp0_index = INDEX_W'(TAGGED_SETS - 1);
+    train_comp1_index = INDEX_W'(1);
+    train_provider_way = WAY_W'(TAGGED_WAYS - 1);
+    #1;
+    check(dut.provider0_entry == ENTRY_INDEX_W'(TAGGED_ENTRIES - 1),
+          "maximum set and way flatten to the final tagged entry");
+    check(dut.provider1_entry == ENTRY_INDEX_W'((1 * TAGGED_WAYS) + TAGGED_WAYS - 1),
+          "nonzero set and maximum way preserve the set stride");
+    train_comp0_index = '0;
+    train_comp1_index = '0;
+    train_provider_way = '0;
 
     set_lookup(64'h100, 16'h0000);
     check(!lookup_prediction[0] && lookup_provider[0] == PROVIDER_BASE,

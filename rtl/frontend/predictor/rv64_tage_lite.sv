@@ -48,6 +48,7 @@ module rv64_tage_lite #(
   localparam logic [1:0] PROVIDER_COMP1 = 2'd2;
 
   localparam int unsigned TAGGED_ENTRIES = TAGGED_SETS * TAGGED_WAYS;
+  localparam int unsigned ENTRY_INDEX_W = $clog2(TAGGED_ENTRIES);
   // Flat packed tables produce deterministic lowering in conservative Yosys.
   // SRAM mapping is deliberately deferred to the SRAM qualification gate.
   logic [BASE_ENTRIES*2-1:0] base_ctr_q;
@@ -65,6 +66,10 @@ module rv64_tage_lite #(
   logic provider0_live;
   logic provider1_live;
   logic [WAY_W-1:0] alloc_way;
+  logic [ENTRY_INDEX_W-1:0] provider0_entry;
+  logic [ENTRY_INDEX_W-1:0] provider1_entry;
+  logic [ENTRY_INDEX_W-1:0] alloc0_entry;
+  logic [ENTRY_INDEX_W-1:0] alloc1_entry;
   logic alloc_found;
   integer way_i;
   integer alloc_i;
@@ -102,6 +107,15 @@ module rv64_tage_lite #(
       end else begin
         sat_update = (counter == 2'b00) ? counter : counter - 2'b01;
       end
+    end
+  endfunction
+
+  function automatic logic [ENTRY_INDEX_W-1:0] tagged_entry(
+      input logic [INDEX_W-1:0] set_index,
+      input logic [WAY_W-1:0] way);
+    begin
+      tagged_entry = (ENTRY_INDEX_W'(set_index) * ENTRY_INDEX_W'(TAGGED_WAYS)) +
+          ENTRY_INDEX_W'(way);
     end
   endfunction
 
@@ -164,11 +178,13 @@ module rv64_tage_lite #(
 
     train_mispredict = train_prediction != train_taken;
     alloc_i = 0;
-    provider0_live = valid0_q[train_comp0_index*TAGGED_WAYS + train_provider_way] &&
-        (tag0_q[((train_comp0_index*TAGGED_WAYS + train_provider_way) * TAG_W) +: TAG_W] ==
+    provider0_entry = tagged_entry(train_comp0_index, train_provider_way);
+    provider1_entry = tagged_entry(train_comp1_index, train_provider_way);
+    provider0_live = valid0_q[provider0_entry] &&
+        (tag0_q[(provider0_entry * TAG_W) +: TAG_W] ==
          train_comp0_tag);
-    provider1_live = valid1_q[train_comp1_index*TAGGED_WAYS + train_provider_way] &&
-        (tag1_q[((train_comp1_index*TAGGED_WAYS + train_provider_way) * TAG_W) +: TAG_W] ==
+    provider1_live = valid1_q[provider1_entry] &&
+        (tag1_q[(provider1_entry * TAG_W) +: TAG_W] ==
          train_comp1_tag);
     alloc_way = '0;
     alloc_found = 1'b0;
@@ -197,6 +213,8 @@ module rv64_tage_lite #(
       if (!alloc_found)
         alloc_way = repl1_q[(train_comp1_index * WAY_W) +: WAY_W];
     end
+    alloc0_entry = tagged_entry(train_comp0_index, alloc_way);
+    alloc1_entry = tagged_entry(train_comp1_index, alloc_way);
   end
 
   always_ff @(posedge clk or negedge rst_ni) begin
@@ -228,26 +246,28 @@ module rv64_tage_lite #(
       base_ctr_q[(train_base_index * 2) +: 2] <=
         sat_update(base_ctr_q[(train_base_index * 2) +: 2], train_taken);
       if ((train_provider == PROVIDER_COMP0) && provider0_live) begin
-        ctr0_q[((train_comp0_index*TAGGED_WAYS + train_provider_way) * 2) +: 2] <=
+        ctr0_q[(provider0_entry * 2) +: 2] <=
             sat_update(
-              ctr0_q[((train_comp0_index*TAGGED_WAYS + train_provider_way) * 2) +: 2],
+              ctr0_q[(provider0_entry * 2) +: 2],
               train_taken);
-        if (train_prediction != train_alt_prediction) useful0_q[train_comp0_index*TAGGED_WAYS + train_provider_way] <= train_prediction == train_taken;
+        if (train_prediction != train_alt_prediction)
+          useful0_q[provider0_entry] <= train_prediction == train_taken;
       end
       if ((train_provider == PROVIDER_COMP1) && provider1_live) begin
-        ctr1_q[((train_comp1_index*TAGGED_WAYS + train_provider_way) * 2) +: 2] <=
+        ctr1_q[(provider1_entry * 2) +: 2] <=
             sat_update(
-              ctr1_q[((train_comp1_index*TAGGED_WAYS + train_provider_way) * 2) +: 2],
+              ctr1_q[(provider1_entry * 2) +: 2],
               train_taken);
-        if (train_prediction != train_alt_prediction) useful1_q[train_comp1_index*TAGGED_WAYS + train_provider_way] <= train_prediction == train_taken;
+        if (train_prediction != train_alt_prediction)
+          useful1_q[provider1_entry] <= train_prediction == train_taken;
       end
       if (train_mispredict && (train_provider == PROVIDER_BASE)) begin
-        if (alloc_found || !useful0_q[train_comp0_index*TAGGED_WAYS + alloc_way]) begin
-          valid0_q[train_comp0_index*TAGGED_WAYS + alloc_way] <= 1'b1;
-          useful0_q[train_comp0_index*TAGGED_WAYS + alloc_way] <= 1'b0;
-          tag0_q[((train_comp0_index*TAGGED_WAYS + alloc_way) * TAG_W) +: TAG_W] <=
+        if (alloc_found || !useful0_q[alloc0_entry]) begin
+          valid0_q[alloc0_entry] <= 1'b1;
+          useful0_q[alloc0_entry] <= 1'b0;
+          tag0_q[(alloc0_entry * TAG_W) +: TAG_W] <=
             train_comp0_tag;
-          ctr0_q[((train_comp0_index*TAGGED_WAYS + alloc_way) * 2) +: 2] <=
+          ctr0_q[(alloc0_entry * 2) +: 2] <=
             train_taken ? 2'b10 : 2'b01;
           repl0_q[(train_comp0_index * WAY_W) +: WAY_W] <=
             alloc_way + WAY_W'(1);
@@ -255,12 +275,12 @@ module rv64_tage_lite #(
           for (way_i = 0; way_i < TAGGED_WAYS; way_i = way_i + 1) useful0_q[train_comp0_index*TAGGED_WAYS + way_i] <= 1'b0;
         end
       end else if (train_mispredict && (train_provider == PROVIDER_COMP0)) begin
-        if (alloc_found || !useful1_q[train_comp1_index*TAGGED_WAYS + alloc_way]) begin
-          valid1_q[train_comp1_index*TAGGED_WAYS + alloc_way] <= 1'b1;
-          useful1_q[train_comp1_index*TAGGED_WAYS + alloc_way] <= 1'b0;
-          tag1_q[((train_comp1_index*TAGGED_WAYS + alloc_way) * TAG_W) +: TAG_W] <=
+        if (alloc_found || !useful1_q[alloc1_entry]) begin
+          valid1_q[alloc1_entry] <= 1'b1;
+          useful1_q[alloc1_entry] <= 1'b0;
+          tag1_q[(alloc1_entry * TAG_W) +: TAG_W] <=
             train_comp1_tag;
-          ctr1_q[((train_comp1_index*TAGGED_WAYS + alloc_way) * 2) +: 2] <=
+          ctr1_q[(alloc1_entry * 2) +: 2] <=
             train_taken ? 2'b10 : 2'b01;
           repl1_q[(train_comp1_index * WAY_W) +: WAY_W] <=
             alloc_way + WAY_W'(1);

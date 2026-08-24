@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-011",
+  "checkpoint_id": "foundation-recovery-012",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-011",
+  "work_packet": "foundation-recovery-012",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Made the smoke flow hermetic by resolving Makefile Bash through PATH and patching repository script shebangs inside the Nix derivation; local 65,777-check smoke and synthesis pass."
+    "Made TAGE set/way table addresses explicitly sized for pinned Verilator 5.018, added nonzero and maximum address tests, passed 65,779 local checks plus lint/synthesis, and received independent verification READY."
   ],
   "next_actions": [
-    "Push foundation-recovery-011 and inspect the hermetic pinned Nix/OpenLane CI run.",
-    "Record passing CI evidence and update the foundation gate.",
+    "Push foundation-recovery-012 and inspect the pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence or fix any remaining pinned-tool warnings.",
     "Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration."
   ],
   "blockers": [

@@ -63,3 +63,26 @@ Redirect and flush invalidate younger buffered output. The initial v0.1 fetch
 controller permits one instruction-stream request at a time and associates each
 response with its aligned request base; a delayed pre-redirect response must not
 become visible after recovery.
+
+## Fetch-controller handshake
+
+`rv64_fetch_controller` owns one in-order, non-cancellable instruction-window
+transaction. A request carries a 16-byte-aligned base and represents the 32-byte
+window beginning at that address. The response has no transaction ID because no
+second request may become outstanding. The controller records both the aligned
+base and the exact start PC at request acceptance.
+
+The controller exposes a buffered window-valid/window-ready interface to the
+aligner. Its start PC, base, byte data, byte-valid state, and byte-fault state
+remain stable until accepted. The accepting consumer supplies `next_pc_i`; that
+PC becomes the next ordinary request PC. No request is issued while a response
+window is buffered or another request is outstanding.
+
+`flush_valid_i` with `flush_pc_i` has highest recovery priority, followed by
+`redirect_valid_i` with `redirect_pc_i`, followed by an accepted window's next
+PC. Flush and redirect both invalidate a buffered window. If either arrives
+while a request is outstanding, that request becomes stale: its eventual
+response is accepted and discarded, including when response and recovery occur
+in the same cycle. Only then may a request for the recovery PC issue. Reset
+starts from parameter `RESET_PC`, and `fetch_enable_i=0` prevents new requests
+without dropping an already accepted transaction or buffered window.

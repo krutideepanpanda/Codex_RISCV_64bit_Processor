@@ -1,28 +1,28 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "frontend-001a",
-  "checkpoint_ref": "checkpoint/frontend-001a",
+  "checkpoint_id": "frontend-001b",
+  "checkpoint_ref": "checkpoint/frontend-001b",
   "mode": "accepted",
   "phase": "v0.1.0",
-  "work_packet": "frontend-001a",
+  "work_packet": "frontend-001b",
   "owners": [
     "architect_integrator",
     "frontend_worker"
   ],
   "completed": [
-    "Accepted two-wide RV64C/native fetch alignment with attributable terminal faults, frozen frontend semantics, 26,768-check seeded outcome coverage, locked Nix smoke, and independent verification READY."
+    "Accepted the one-outstanding-window RV64 fetch controller with reset-safe handshakes, stable backpressure behavior, flush-over-redirect recovery, stale-response draining, buffered-window assertions, 538 independent-model checks, locked Nix smoke, and independent verification review."
   ],
   "next_actions": [
-    "Implement the one-outstanding-request fetch controller with redirect and flush stale-response suppression.",
-    "Integrate BTB, TAGE-lite, 32-entry indirect prediction, and full RAS/history recovery metadata.",
-    "Add recovery and backpressure assertions and obtain independent review before the v0.1.0 milestone gate."
+    "Integrate BTB, TAGE-lite, 32-entry indirect prediction, RAS, and speculative-history recovery metadata.",
+    "Compose the fetch controller, aligner, decompressor, and predictor blocks behind the frozen two-wide frontend packet interface.",
+    "Close recovery, backpressure, and prediction assertions plus independent review before the v0.1.0 milestone gate."
   ],
   "blockers": [],
   "tests": {
     "make smoke": {
       "status": "pass",
-      "log": ".continuity/checkpoints/frontend-001a.smoke.log",
-      "sha256": "9d0c3b742627a8e9f990b379ee5d0c0b00eaa2e99afcd1e4e6bce837f082ed8a"
+      "log": ".continuity/checkpoints/frontend-001b.smoke.log",
+      "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
     },
     "fresh-task recovery smoke": {
       "status": "pass",
@@ -56,6 +56,33 @@
       "record": ".continuity/local/frontend-001a-nix-smoke.json",
       "sha256": "1474f3b5da8005e1ab534f39c0b445f2a5a6c3cbaf1ea018900b49f032dcbb9b",
       "total_unit_checks": 92547,
+      "verilator": "5.018",
+      "yosys": "0.46",
+      "independent_review": "ready"
+    },
+    "frontend-001a pinned Nix CI smoke": {
+      "status": "pass",
+      "run_id": 32711569205,
+      "job_id": 97383882185,
+      "record": ".continuity/ci/frontend-001a-32711569205.json",
+      "sha256": "3395fb88c4167550179bbff64e152e3356cab7634f4ceb1d8bc44742cfd99ef9",
+      "commit": "3e18417bfc9d359e4f25d16cbc7c38ef2f411abc",
+      "total_unit_checks": 92547
+    },
+    "frontend-001b focused host test": {
+      "status": "pass",
+      "command": "make BUILD_DIR=build/fetch-controller-review build/fetch-controller-review/fetch_controller_unit && build/fetch-controller-review/fetch_controller_unit",
+      "verilator": "5.050",
+      "fetch_controller_checks": 538,
+      "independent_review": "ready"
+    },
+    "frontend-001b pinned Nix smoke": {
+      "status": "pass",
+      "command": "make nix-smoke",
+      "record": ".continuity/local/frontend-001b-nix-smoke.json",
+      "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50",
+      "total_unit_checks": 93085,
+      "fetch_controller_checks": 538,
       "verilator": "5.018",
       "yosys": "0.46",
       "independent_review": "ready"
@@ -106,6 +133,24 @@
       "status": "pass",
       "log": ".continuity/checkpoints/frontend-001a.smoke.log",
       "sha256": "9d0c3b742627a8e9f990b379ee5d0c0b00eaa2e99afcd1e4e6bce837f082ed8a"
+    },
+    {
+      "id": "frontend-001a-32711569205",
+      "status": "pass",
+      "record": ".continuity/ci/frontend-001a-32711569205.json",
+      "sha256": "3395fb88c4167550179bbff64e152e3356cab7634f4ceb1d8bc44742cfd99ef9"
+    },
+    {
+      "id": "frontend-001b-nix-smoke",
+      "status": "pass",
+      "record": ".continuity/local/frontend-001b-nix-smoke.json",
+      "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50"
+    },
+    {
+      "id": "frontend-001b-smoke",
+      "status": "pass",
+      "log": ".continuity/checkpoints/frontend-001b.smoke.log",
+      "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
     }
   ],
   "artifacts": [
@@ -118,6 +163,11 @@
       "path": ".continuity/ci/foundation-nix-smoke-32704545610.json",
       "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
       "source": "GitHub Actions run 32704545610"
+    },
+    {
+      "path": ".continuity/ci/frontend-001a-32711569205.json",
+      "sha256": "3395fb88c4167550179bbff64e152e3356cab7634f4ceb1d8bc44742cfd99ef9",
+      "source": "GitHub Actions run 32711569205 on checkpoint/frontend-001a"
     },
     {
       "path": ".continuity/local/foundation-nix-container-smoke.json",
@@ -138,6 +188,21 @@
       "path": "tests/frontend/fetch/fetch_align_tb.sv",
       "sha256": "bbaa5be83fc9a5fe61bdda59928484fa6bbdeefed617a0d428f84fcc0f6f9f8b",
       "source": "frontend-001a reviewed deterministic test"
+    },
+    {
+      "path": ".continuity/local/frontend-001b-nix-smoke.json",
+      "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50",
+      "source": "locked rootless Podman Nix smoke and independent verification review"
+    },
+    {
+      "path": "rtl/frontend/fetch/rv64_fetch_controller.sv",
+      "sha256": "0939f609b73f60a14711ab90b9e084be7dc4bb083836048deaef309f5f4daec0",
+      "source": "frontend-001b reviewed RTL"
+    },
+    {
+      "path": "tests/frontend/fetch/fetch_controller_tb.sv",
+      "sha256": "cecb61f5840e2ecf6beb15e49520b9e303b919fe88d8704ae647f45d9e165577",
+      "source": "frontend-001b independent model and directed test"
     }
   ]
 }

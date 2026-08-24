@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001b",
+  "mode": "accepted",
+  "phase": "v0.1.0",
+  "summary": "Accepted the one-outstanding-window RV64 fetch controller with reset-safe handshakes, stable backpressure behavior, flush-over-redirect recovery, stale-response draining, buffered-window assertions, 538 independent-model checks, locked Nix smoke, and independent verification review.",
+  "next_actions": [
+    "Integrate BTB, TAGE-lite, 32-entry indirect prediction, RAS, and speculative-history recovery metadata.",
+    "Compose the fetch controller, aligner, decompressor, and predictor blocks behind the frozen two-wide frontend packet interface.",
+    "Close recovery, backpressure, and prediction assertions plus independent review before the v0.1.0 milestone gate."
+  ],
+  "dependency_lock_sha256": "b73ff1d8370227279402899dbb186e92a206fea8b75aac7d76f15eba557cb687",
+  "pre_checkpoint_changes": [
+    "M  .continuity/CURRENT.yaml",
+    "A  .continuity/ci/frontend-001a-32711569205.json",
+    "A  .continuity/local/frontend-001b-nix-smoke.json",
+    "M  Makefile",
+    "M  docs/frontend-interface.md",
+    "A  rtl/frontend/fetch/rv64_fetch_controller.sv",
+    "A  tests/frontend/fetch/fetch_controller_tb.sv"
+  ],
+  "tests": {
+    "make smoke": {
+      "status": "pass",
+      "log": ".continuity/checkpoints/frontend-001b.smoke.log",
+      "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
+    },
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    },
+    "pinned Nix CI smoke": {
+      "status": "pass",
+      "record": ".continuity/ci/foundation-nix-smoke-32704545610.json",
+      "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
+      "total_unit_checks": 65779
+    },
+    "pinned Nix local container smoke": {
+      "status": "pass",
+      "record": ".continuity/local/foundation-nix-container-smoke.json",
+      "sha256": "8b77986fccbfab5b133385219d5539d6a509efb8fbe4ba1eab4c0f62d1d10938",
+      "total_unit_checks": 65779,
+      "independent_review": "ready"
+    },
+    "frontend-001a focused host test": {
+      "status": "pass",
+      "command": "make BUILD_DIR=build/fetch-align-review build/fetch-align-review/fetch_align_unit && build/fetch-align-review/fetch_align_unit",
+      "verilator": "5.050",
+      "fetch_align_checks": 26768,
+      "seed": "0x5eed1234",
+      "independent_review": "ready"
+    },
+    "frontend-001a pinned Nix smoke": {
+      "status": "pass",
+      "command": "make nix-smoke",
+      "record": ".continuity/local/frontend-001a-nix-smoke.json",
+      "sha256": "1474f3b5da8005e1ab534f39c0b445f2a5a6c3cbaf1ea018900b49f032dcbb9b",
+      "total_unit_checks": 92547,
+      "verilator": "5.018",
+      "yosys": "0.46",
+      "independent_review": "ready"
+    },
+    "frontend-001a pinned Nix CI smoke": {
+      "status": "pass",
+      "run_id": 32711569205,
+      "job_id": 97383882185,
+      "record": ".continuity/ci/frontend-001a-32711569205.json",
+      "sha256": "3395fb88c4167550179bbff64e152e3356cab7634f4ceb1d8bc44742cfd99ef9",
+      "commit": "3e18417bfc9d359e4f25d16cbc7c38ef2f411abc",
+      "total_unit_checks": 92547
+    },
+    "frontend-001b focused host test": {
+      "status": "pass",
+      "command": "make BUILD_DIR=build/fetch-controller-review build/fetch-controller-review/fetch_controller_unit && build/fetch-controller-review/fetch_controller_unit",
+      "verilator": "5.050",
+      "fetch_controller_checks": 538,
+      "independent_review": "ready"
+    },
+    "frontend-001b pinned Nix smoke": {
+      "status": "pass",
+      "command": "make nix-smoke",
+      "record": ".continuity/local/frontend-001b-nix-smoke.json",
+      "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50",
+      "total_unit_checks": 93085,
+      "fetch_controller_checks": 538,
+      "verilator": "5.018",
+      "yosys": "0.46",
+      "independent_review": "ready"
+    }
+  },
+  "smoke_log": {
+    "path": ".continuity/checkpoints/frontend-001b.smoke.log",
+    "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
+  }
+}

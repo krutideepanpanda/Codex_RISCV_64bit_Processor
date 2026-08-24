@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001b-nix-smoke",
+  "provider": "local-rootless-podman",
+  "command": "make nix-smoke",
+  "completed_at": "2026-08-24T09:57:47Z",
+  "status": "pass",
+  "environment": {
+    "host_distribution": "Bazzite",
+    "root_filesystem": "read-only composefs",
+    "runtime": "rootless podman",
+    "image": "docker.io/nixos/nix@sha256:617d914dba5384bf75adf17081583b69371031ec7defce36c34c5fa14fc819b0",
+    "image_id": "98edc6813218e179ce84587373e0b52d4aa58babae2d26b51fb01e7fdacf815f",
+    "store_volume": "codex-rv64-nix-store",
+    "source_mount": "read-only",
+    "pull_policy": "never"
+  },
+  "tools": {
+    "nix": "2.35.2",
+    "verilator": "5.018",
+    "yosys": "0.46 (e97731b9dda91fa5fa53ed87df7c34163ba59a41)",
+    "sv2v": "0.0.13"
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "dependency_lock_sha256": "b73ff1d8370227279402899dbb186e92a206fea8b75aac7d76f15eba557cb687",
+    "lock_updates_allowed": false,
+    "flake_config_accepted": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "rtl_lint": "pass",
+    "generic_synthesis": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 93085,
+      "decompressor_checks": 65584,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "fetch_align_checks": 26768,
+      "fetch_controller_checks": 538,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    }
+  },
+  "fetch_align_random": {
+    "seed": "0x5eed1234",
+    "cases": 2048,
+    "offset_bins": 8,
+    "lane_0": {
+      "success": 468,
+      "missing": 1294,
+      "first_pair_fault": 191,
+      "tail_fault": 95
+    },
+    "lane_1": {
+      "success": 104,
+      "missing": 302,
+      "first_pair_fault": 38,
+      "tail_fault": 24
+    }
+  },
+  "artifacts": {
+    "rtl/frontend/fetch/rv64_fetch_controller.sv": "0939f609b73f60a14711ab90b9e084be7dc4bb083836048deaef309f5f4daec0",
+    "tests/frontend/fetch/fetch_controller_tb.sv": "cecb61f5840e2ecf6beb15e49520b9e303b919fe88d8704ae647f45d9e165577",
+    "docs/frontend-interface.md": "536dbc45841facef52313cb8f0a55da9dd4ce687ba6856992ce5df3e4f64e072",
+    "Makefile": "0c9851d6edfc12abf8c17e609776ae3ab60b54232fb58a687f48af48bc2f4bdd"
+  },
+  "review": {
+    "role": "verification-reviewer",
+    "agent_id": "01a032a1-554d-7583-bca4-67d092b43e23",
+    "status": "ready",
+    "initial_blockers": 4,
+    "resolved_blockers": 4,
+    "independent_checks": 538,
+    "scope": "reset handshake suppression, stable stalled offer, recovery priority, stale-response discard, buffered-window stability, assertions, and independent scoreboard"
+  }
+}

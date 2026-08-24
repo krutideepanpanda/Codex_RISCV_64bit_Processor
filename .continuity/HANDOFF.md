@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `frontend-001a` is `accepted` in phase `v0.1.0`.
+Checkpoint `frontend-001b` is `accepted` in phase `v0.1.0`.
 
-Completed: Accepted two-wide RV64C/native fetch alignment with attributable terminal faults, frozen frontend semantics, 26,768-check seeded outcome coverage, locked Nix smoke, and independent verification READY.
+Completed: Accepted the one-outstanding-window RV64 fetch controller with reset-safe handshakes, stable backpressure behavior, flush-over-redirect recovery, stale-response draining, buffered-window assertions, 538 independent-model checks, locked Nix smoke, and independent verification review.
 
 Next actions:
 
-1. Implement the one-outstanding-request fetch controller with redirect and flush stale-response suppression.
-2. Integrate BTB, TAGE-lite, 32-entry indirect prediction, and full RAS/history recovery metadata.
-3. Add recovery and backpressure assertions and obtain independent review before the v0.1.0 milestone gate.
+1. Integrate BTB, TAGE-lite, 32-entry indirect prediction, RAS, and speculative-history recovery metadata.
+2. Compose the fetch controller, aligner, decompressor, and predictor blocks behind the frozen two-wide frontend packet interface.
+3. Close recovery, backpressure, and prediction assertions plus independent review before the v0.1.0 milestone gate.
 
 Resume steps:
 

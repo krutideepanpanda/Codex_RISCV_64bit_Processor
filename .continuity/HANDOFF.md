@@ -1,12 +1,12 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-009` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-010` is `emergency` in phase `foundation`.
 
-Completed: Replaced failing callCabal2nix sv2v packaging with a SHA-256-pinned upstream x86_64 release artifact and Nix autoPatchelf runtime closure; manifest bindings validate URL, digest, version, and platform.
+Completed: Enabled the pinned OpenLane Cachix substituter and trusted key in the ephemeral Nix daemon before locked CI evaluation; independent review is READY.
 
 Next actions:
 
-1. Push foundation-recovery-009 and inspect the pinned Nix/OpenLane CI run.
+1. Push foundation-recovery-010 and inspect the cache-enabled pinned Nix/OpenLane CI run.
 2. Record passing CI evidence or diagnose the next exact closure failure.
 3. Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration.
 

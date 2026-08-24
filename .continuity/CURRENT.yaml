@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-009",
+  "checkpoint_id": "foundation-recovery-010",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-009",
+  "work_packet": "foundation-recovery-010",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Replaced failing callCabal2nix sv2v packaging with a SHA-256-pinned upstream x86_64 release artifact and Nix autoPatchelf runtime closure; manifest bindings validate URL, digest, version, and platform."
+    "Enabled the pinned OpenLane Cachix substituter and trusted key in the ephemeral Nix daemon before locked CI evaluation; independent review is READY."
   ],
   "next_actions": [
-    "Push foundation-recovery-009 and inspect the pinned Nix/OpenLane CI run.",
+    "Push foundation-recovery-010 and inspect the cache-enabled pinned Nix/OpenLane CI run.",
     "Record passing CI evidence or diagnose the next exact closure failure.",
     "Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration."
   ],

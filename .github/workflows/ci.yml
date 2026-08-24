@@ -32,6 +32,11 @@ jobs:
             '9adda97297d9e8ab360df95c729eabff4f4f93d6db091953c3a68f29e3fb130c' \
             '/tmp/nix-install' | sha256sum --check --strict
           sh /tmp/nix-install --daemon --yes
+          sudo tee -a /etc/nix/nix.conf >/dev/null <<'EOF'
+          extra-substituters = https://openlane.cachix.org
+          extra-trusted-public-keys = openlane.cachix.org-1:qqdwh+QMNGmZAuyeQJTH9ErW57OWSvdtuwfBKdS254E=
+          EOF
+          sudo systemctl restart nix-daemon.service
 
       - name: Validate locked environment and smoke test
         shell: bash

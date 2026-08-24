@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import hashlib
 from pathlib import Path
+import re
 import sys
 import tomllib
 from typing import Any
@@ -89,6 +91,72 @@ def validate_json_control_files() -> None:
                 f"{packet_id} depends on unknown or later package(s): {', '.join(sorted(unknown))}"
             )
         known.add(packet_id)
+
+
+def validate_dependency_lock() -> None:
+    dependency_lock = load_json(ROOT / "config" / "dependencies.lock.json")
+    flake_lock = load_json(ROOT / "flake.lock")
+    if flake_lock.get("version") != 7 or flake_lock.get("root") != "root":
+        raise ValidationError("flake.lock must use the expected v7 root schema")
+
+    nodes = flake_lock.get("nodes")
+    if not isinstance(nodes, dict):
+        raise ValidationError("flake.lock nodes must be an object")
+    root_node = nodes.get(flake_lock["root"], {})
+    root_inputs = root_node.get("inputs", {})
+    nixpkgs_name = root_inputs.get("nixpkgs")
+    openlane_name = root_inputs.get("openlane")
+    if not isinstance(nixpkgs_name, str) or not isinstance(openlane_name, str):
+        raise ValidationError("flake.lock root must directly select nixpkgs and OpenLane nodes")
+    openlane_node = nodes.get(openlane_name, {})
+    nix_eda_name = openlane_node.get("inputs", {}).get("nix-eda")
+    if not isinstance(nix_eda_name, str):
+        raise ValidationError("selected OpenLane node must directly select a nix-eda node")
+
+    sources = dependency_lock.get("sources", {})
+    comparisons = {
+        "nixpkgs revision": (
+            nodes.get(nixpkgs_name, {}).get("locked", {}).get("rev"),
+            sources.get("nixpkgs", {}).get("revision"),
+        ),
+        "nixpkgs NAR hash": (
+            nodes.get(nixpkgs_name, {}).get("locked", {}).get("narHash"),
+            sources.get("nixpkgs", {}).get("nar_hash"),
+        ),
+        "OpenLane revision": (
+            openlane_node.get("locked", {}).get("rev"),
+            sources.get("efabless/openlane2", {}).get("revision"),
+        ),
+        "nix-eda revision": (
+            nodes.get(nix_eda_name, {}).get("locked", {}).get("rev"),
+            sources.get("efabless/openlane2", {}).get("nix_eda_revision"),
+        ),
+    }
+    mismatches = [name for name, (actual, expected) in comparisons.items()
+                  if not actual or actual != expected]
+    if mismatches:
+        raise ValidationError("flake/dependency lock mismatch: " + ", ".join(mismatches))
+
+    sv2v = dependency_lock.get("local_tools", {}).get("sv2v", {})
+    try:
+        source_bytes = bytes.fromhex(sv2v["source_sha256"])
+        expected_sri = "sha256-" + base64.b64encode(source_bytes).decode("ascii")
+        expected_url = sv2v["source_url"]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValidationError("sv2v dependency requires a valid URL and SHA-256") from exc
+    if len(source_bytes) != 32:
+        raise ValidationError("sv2v source_sha256 must encode exactly 32 bytes")
+    flake_text = (ROOT / "flake.nix").read_text(encoding="utf-8")
+    fetch = re.search(
+        r'sv2vPackage\s*=.*?\(pkgs\.fetchurl\s*\{(?P<body>.*?)\}\)\s*\{\};',
+        flake_text,
+        flags=re.DOTALL,
+    )
+    if not fetch:
+        raise ValidationError("flake.nix has no recognizable sv2v fetchurl block")
+    body = fetch.group("body")
+    if f'url = "{expected_url}";' not in body or f'hash = "{expected_sri}";' not in body:
+        raise ValidationError("flake.nix sv2v source differs from dependency lock")
 
 
 def validate_recovery_drills() -> None:
@@ -203,6 +271,7 @@ def validate_udb_profile() -> None:
 def main() -> int:
     try:
         validate_json_control_files()
+        validate_dependency_lock()
         validate_toml()
         validate_skills()
         validate_udb_profile()

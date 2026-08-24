@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-007` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-008` is `emergency` in phase `foundation`.
 
-Completed: Implemented and independently reviewed two-wide speculative history, TAGE-lite direction prediction, and indirect-target prediction; all frontend blocks lint and synthesize warning-clean; 65,777-check smoke passes; CI now preserves the generated Nix lock.
+Completed: Committed the exact CI-generated flake.lock, corrected the sv2v source digest, and added graph-aware lock consistency validation; local 65,777-check smoke and synthesis pass.
 
 Next actions:
 
-1. Push foundation-recovery-007 and inspect the corrected pinned Nix CI run.
-2. Download, verify, and commit the exact CI-generated flake.lock artifact.
-3. Pass clean-checkout Nix smoke and seal accepted checkpoint foundation-001 before continuing v0.1 fetch integration.
+1. Push foundation-recovery-008 and inspect the pinned Nix/OpenLane CI run.
+2. Record passing CI evidence or diagnose the next exact closure failure.
+3. Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration.
 
 Resume steps:
 

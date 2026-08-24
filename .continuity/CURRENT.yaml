@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-007",
+  "checkpoint_id": "foundation-recovery-008",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-007",
+  "work_packet": "foundation-recovery-008",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Implemented and independently reviewed two-wide speculative history, TAGE-lite direction prediction, and indirect-target prediction; all frontend blocks lint and synthesize warning-clean; 65,777-check smoke passes; CI now preserves the generated Nix lock."
+    "Committed the exact CI-generated flake.lock, corrected the sv2v source digest, and added graph-aware lock consistency validation; local 65,777-check smoke and synthesis pass."
   ],
   "next_actions": [
-    "Push foundation-recovery-007 and inspect the corrected pinned Nix CI run.",
-    "Download, verify, and commit the exact CI-generated flake.lock artifact.",
-    "Pass clean-checkout Nix smoke and seal accepted checkpoint foundation-001 before continuing v0.1 fetch integration."
+    "Push foundation-recovery-008 and inspect the pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence or diagnose the next exact closure failure.",
+    "Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration."
   ],
   "blockers": [
-    "Nix is not installed",
-    "flake.lock and the OpenLane Nix closure have not yet been generated and validated"
+    "Nix is not installed on the local Bazzite host",
+    "The hash-corrected pinned Nix/OpenLane closure still requires a passing GitHub Actions run"
   ],
   "tests": {
     "make smoke": "not-run (emergency)",
@@ -30,7 +30,7 @@
   },
   "seeds": [],
   "waivers": [],
-  "tool_lock_sha256": "e7e63ed662e1d1861675904084d6f4098c814d68bd42477f0c58720260158733",
+  "tool_lock_sha256": "06c39fb26d9c02dbc3ab38ab5f52bbc7d87dcacb97ca28f2d63f7607758302fa",
   "runs": [
     {
       "id": "fresh-task-001",
@@ -39,5 +39,11 @@
       "sha256": "2ca3818d78af20c762a81168fda369f8c8643b010a7982581331e0e76caddb52"
     }
   ],
-  "artifacts": []
+  "artifacts": [
+    {
+      "path": "flake.lock",
+      "sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+      "source": "GitHub Actions run 32700173827 artifact flake-lock-244f94b3b5307068353fcab5ad7d627eeabaeca1"
+    }
+  ]
 }

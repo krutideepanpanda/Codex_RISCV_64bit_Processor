@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-008",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Committed the exact CI-generated flake.lock, corrected the sv2v source digest, and added graph-aware lock consistency validation; local 65,777-check smoke and synthesis pass.",
+  "next_actions": [
+    "Push foundation-recovery-008 and inspect the pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence or diagnose the next exact closure failure.",
+    "Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration."
+  ],
+  "dependency_lock_sha256": "06c39fb26d9c02dbc3ab38ab5f52bbc7d87dcacb97ca28f2d63f7607758302fa",
+  "pre_checkpoint_changes": [
+    " M .continuity/CURRENT.yaml",
+    " M .github/workflows/ci.yml",
+    " M config/dependencies.lock.json",
+    " M flake.nix",
+    " M scripts/validate-project.py",
+    "?? flake.lock"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
+  },
+  "smoke_log": null
+}

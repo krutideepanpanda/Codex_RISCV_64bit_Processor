@@ -39,11 +39,9 @@ jobs:
           set -euo pipefail
           source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
           nix --extra-experimental-features 'nix-command flakes' \
-            flake lock --accept-flake-config
-          nix --extra-experimental-features 'nix-command flakes' \
             flake check --no-update-lock-file --accept-flake-config --print-build-logs
 
-      - name: Preserve exact generated flake lock
+      - name: Preserve exact checked-in flake lock
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

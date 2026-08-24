@@ -21,7 +21,7 @@
       sv2vPackage = pkgs.haskellPackages.callCabal2nix "sv2v"
         (pkgs.fetchurl {
           url = "https://github.com/zachjs/sv2v/archive/refs/tags/v0.0.13.tar.gz";
-          hash = "sha256-7Gcj8wwXmLH7u+2XNk8JxDH7SHVXfDFPNyQOmbYKSgQ=";
+          hash = "sha256-TOffjG+jhX2moraTQ8KefGJ6QoMJDysHIhqp75VqiMg=";
         }) {};
     in {
       devShells.${system}.default = pkgs.mkShell {

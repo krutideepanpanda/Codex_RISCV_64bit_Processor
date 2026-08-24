@@ -65,7 +65,8 @@ unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
 frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit \
 	$(BUILD_DIR)/spec_history_unit $(BUILD_DIR)/tage_lite_unit \
 	$(BUILD_DIR)/indirect_predictor_unit $(BUILD_DIR)/fetch_align_unit \
-	$(BUILD_DIR)/fetch_controller_unit $(BUILD_DIR)/fetch_predictor_unit
+	$(BUILD_DIR)/fetch_controller_unit $(BUILD_DIR)/fetch_predictor_unit \
+	$(BUILD_DIR)/fetch_predictor_state_unit
 	$(BUILD_DIR)/decompress_unit
 	$(BUILD_DIR)/ras_unit
 	$(BUILD_DIR)/btb_unit
@@ -75,6 +76,7 @@ frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/b
 	$(BUILD_DIR)/fetch_align_unit
 	$(BUILD_DIR)/fetch_controller_unit
 	$(BUILD_DIR)/fetch_predictor_unit
+	$(BUILD_DIR)/fetch_predictor_state_unit
 
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
@@ -152,6 +154,14 @@ $(BUILD_DIR)/fetch_predictor_unit: $(FRONTEND_RTL_FILES) \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-BLKSEQ -Wno-SYNCASYNCNET \
 		--top-module fetch_predictor_tb -Mdir $(BUILD_DIR)/obj_fetch_predictor \
 		-o ../fetch_predictor_unit $(FRONTEND_RTL_FILES) tests/frontend/fetch/fetch_predictor_tb.sv
+
+$(BUILD_DIR)/fetch_predictor_state_unit: $(FRONTEND_RTL_FILES) \
+	tests/frontend/fetch/fetch_predictor_state_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-BLKSEQ -Wno-SYNCASYNCNET \
+		--top-module fetch_predictor_state_tb -Mdir $(BUILD_DIR)/obj_fetch_predictor_state \
+		-o ../fetch_predictor_state_unit $(FRONTEND_RTL_FILES) tests/frontend/fetch/fetch_predictor_state_tb.sv
 
 test: validate lint frontend-lint unit
 

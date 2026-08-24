@@ -32,6 +32,7 @@ module rv64_ras #(
   logic [SNAPSHOT_W-1:0] stack_q;
   logic [SP_W-1:0]   sp_q;
   logic [COUNT_W-1:0] count_q;
+  logic [SP_W-1:0] top_index;
 
   initial begin
     assert (DEPTH >= 2);
@@ -43,10 +44,13 @@ module rv64_ras #(
   end
 
   always_comb begin
+    // SP points at the next push slot.  Fixed-width subtraction deliberately
+    // wraps a full stack's SP=0 to DEPTH-1 without a negative part-select.
+    top_index = sp_q - SP_W'(1);
     top_valid = (count_q != '0);
     top_addr = '0;
     if (top_valid) begin
-      top_addr = stack_q[((int'(sp_q) - 1) * ADDR_W) +: ADDR_W];
+      top_addr = stack_q[(int'(top_index) * ADDR_W) +: ADDR_W];
     end
     checkpoint_sp_o = sp_q;
     checkpoint_count_o = count_q;
@@ -81,7 +85,7 @@ module rv64_ras #(
           sp_q <= sp_q + SP_W'(1);
           count_q <= COUNT_W'(1);
         end else begin
-          stack_q[((int'(sp_q) - 1) * ADDR_W) +: ADDR_W] <= push_addr;
+          stack_q[(int'(top_index) * ADDR_W) +: ADDR_W] <= push_addr;
         end
         default: begin end
       endcase

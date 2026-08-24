@@ -1,28 +1,28 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "frontend-001c-a",
-  "checkpoint_ref": "checkpoint/frontend-001c-a",
+  "checkpoint_id": "frontend-001c-b",
+  "checkpoint_ref": "checkpoint/frontend-001c-b",
   "mode": "accepted",
   "phase": "v0.1.0",
-  "work_packet": "frontend-001c-a",
+  "work_packet": "frontend-001c-b",
   "owners": [
     "architect_integrator",
     "frontend_worker"
   ],
   "completed": [
-    "Accepted metadata-correct fetch/predictor integration with oldest-control lane suppression, stable registered packet metadata, retirement-only BTB/TAGE training, compatible-kind checks, atomic response completeness, recovery handling, 46 integration checks, locked Nix smoke, and independent verification READY."
+    "Accepted bounded predictor-state integration with fault-safe speculative history, complete x1/x5 RAS hint handling including coroutine recovery, indirect-confidence and alias checks, 136 state checks, 93,267-check locked smoke/synthesis, and independent verification READY; the v0.1.0 milestone remains incomplete."
   ],
   "next_actions": [
-    "Complete frontend-001c-b indirect-confidence training and target-selection tests.",
-    "Complete destructive RAS snapshot recovery and call/return/coroutine integration tests.",
-    "Complete dual-lane speculative-history advancement/recovery reference tests before the v0.1.0 milestone gate."
+    "Freeze the two-wide fetch-to-decode bundle, exception metadata, and predictor checkpoint/recovery ownership.",
+    "Expand decode coverage toward the declared RV64GC and selected Z-extension profile with randomized reference checks.",
+    "Close remaining frontend assertions and obtain independent gate review before tagging v0.1.0."
   ],
   "blockers": [],
   "tests": {
     "make smoke": {
       "status": "pass",
-      "log": ".continuity/checkpoints/frontend-001c-a.smoke.log",
-      "sha256": "fc967b101048d16af1e3538bfecde3be6ba2db50e3059323ca6681a8a3a80b24"
+      "log": ".continuity/checkpoints/frontend-001c-b.smoke.log",
+      "sha256": "2734fc656c520dfdf494c04ded62262827107a2dd7b4ad1837af74033199a7b9"
     },
     "fresh-task recovery smoke": {
       "status": "pass",
@@ -113,6 +113,42 @@
       "verilator": "5.018",
       "yosys": "0.46",
       "independent_review": "ready"
+    },
+    "frontend-001c-a pinned Nix CI smoke": {
+      "status": "pass",
+      "run_id": 32718305386,
+      "job_id": 97404148416,
+      "record": ".continuity/ci/frontend-001c-a-32718305386.json",
+      "sha256": "7b3882a89e43a20a9ffdb96f4bce1628c929041ca40f0cb088b8e1963605068f",
+      "commit": "f0b746c4725d2f527278c65c572dc9f444a6608c",
+      "total_unit_checks": 93131
+    },
+    "frontend-001c-b focused host test": {
+      "status": "pass",
+      "command": "make BUILD_DIR=build/frontend-001c-b-review build/frontend-001c-b-review/fetch_predictor_state_unit && build/frontend-001c-b-review/fetch_predictor_state_unit",
+      "verilator": "5.050",
+      "fetch_predictor_state_checks": 136,
+      "ras_checks": 10,
+      "independent_review": "ready"
+    },
+    "frontend-001c-b host smoke": {
+      "status": "pass",
+      "command": "make smoke BUILD_DIR=build/frontend-001c-b-smoke",
+      "total_unit_checks": 93267,
+      "rtl_lint": "pass",
+      "generic_synthesis": "pass",
+      "frontend_synthesis": "pass"
+    },
+    "frontend-001c-b pinned Nix smoke": {
+      "status": "pass",
+      "command": "make nix-smoke",
+      "record": ".continuity/local/frontend-001c-b-nix-smoke.json",
+      "sha256": "020fb3a20ba1b055c581b645a4b18b5f60f5c9773e3e0d47486ab42ec1e79923",
+      "total_unit_checks": 93267,
+      "fetch_predictor_state_checks": 136,
+      "verilator": "5.018",
+      "yosys": "0.46",
+      "independent_review": "ready"
     }
   },
   "seeds": [
@@ -196,6 +232,24 @@
       "status": "pass",
       "log": ".continuity/checkpoints/frontend-001c-a.smoke.log",
       "sha256": "fc967b101048d16af1e3538bfecde3be6ba2db50e3059323ca6681a8a3a80b24"
+    },
+    {
+      "id": "frontend-001c-a-32718305386",
+      "status": "pass",
+      "record": ".continuity/ci/frontend-001c-a-32718305386.json",
+      "sha256": "7b3882a89e43a20a9ffdb96f4bce1628c929041ca40f0cb088b8e1963605068f"
+    },
+    {
+      "id": "frontend-001c-b-nix-smoke",
+      "status": "pass",
+      "record": ".continuity/local/frontend-001c-b-nix-smoke.json",
+      "sha256": "020fb3a20ba1b055c581b645a4b18b5f60f5c9773e3e0d47486ab42ec1e79923"
+    },
+    {
+      "id": "frontend-001c-b-smoke",
+      "status": "pass",
+      "log": ".continuity/checkpoints/frontend-001c-b.smoke.log",
+      "sha256": "2734fc656c520dfdf494c04ded62262827107a2dd7b4ad1837af74033199a7b9"
     }
   ],
   "artifacts": [
@@ -260,6 +314,11 @@
       "source": "locked rootless Podman Nix smoke and independent verification review"
     },
     {
+      "path": ".continuity/ci/frontend-001c-a-32718305386.json",
+      "sha256": "7b3882a89e43a20a9ffdb96f4bce1628c929041ca40f0cb088b8e1963605068f",
+      "source": "GitHub Actions run 32718305386 on checkpoint/frontend-001c-a"
+    },
+    {
       "path": "rtl/frontend/fetch/rv64_fetch_predictor.sv",
       "sha256": "19740077897537973f0dbb0389d4cc48d43cab341cdfce3bd6f75e8e943166f6",
       "source": "frontend-001c-a reviewed RTL"
@@ -268,6 +327,31 @@
       "path": "tests/frontend/fetch/fetch_predictor_tb.sv",
       "sha256": "ae5e839ecc79dbb28c422352e64a986d7b5a4704e816a92604afffc3d8972032",
       "source": "frontend-001c-a directed integration test"
+    },
+    {
+      "path": ".continuity/local/frontend-001c-b-nix-smoke.json",
+      "sha256": "020fb3a20ba1b055c581b645a4b18b5f60f5c9773e3e0d47486ab42ec1e79923",
+      "source": "locked rootless Podman Nix smoke and independent verification review"
+    },
+    {
+      "path": "rtl/frontend/fetch/rv64_fetch_predictor.sv",
+      "sha256": "39134ed899079051607d03fb4e28a2eff9cae921445b8c5264cec59cff2aee28",
+      "source": "frontend-001c-b reviewed predictor-state integration RTL"
+    },
+    {
+      "path": "rtl/frontend/predictor/rv64_ras.sv",
+      "sha256": "77863e3c19be11e21f31e05f846db7b30ec3fb9b2173c0b7a66695f187a79a35",
+      "source": "frontend-001c-b reviewed wrapped RAS RTL"
+    },
+    {
+      "path": "tests/frontend/fetch/fetch_predictor_state_tb.sv",
+      "sha256": "51d8686a210556e179597d8fbc345cf2195d86f38141c33c2bd1c7f28fa10d9b",
+      "source": "frontend-001c-b independent predictor-state reference test"
+    },
+    {
+      "path": "tests/frontend/predictor/ras_tb.sv",
+      "sha256": "26f1dc7a52149f847ba00d97eb89256256ead44c8da55c84050a47bac4d01d64",
+      "source": "frontend-001c-b full-stack wrap regression"
     }
   ]
 }

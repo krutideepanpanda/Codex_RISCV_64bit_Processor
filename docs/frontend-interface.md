@@ -87,6 +87,33 @@ The recovery priority is frontend flush, resolved redirect, then ordinary
 speculative advancement. Redirect restores the saved history and full RAS
 snapshot before optionally appending the resolved branch outcome.
 
+Speculative history advances only when an accepted packet contains a
+non-faulting conditional branch, using that branch's predicted outcome. Because the current
+single-port composition permits only one control transfer per packet, a live
+lane-1 branch necessarily follows a non-control lane 0 and observes the same
+pre-packet history. The underlying history primitive retains explicit lane-0
+then lane-1 ordering for a later multi-control interface. A branch redirect
+restores the branch's pre-branch checkpoint and appends its resolved outcome;
+a non-branch redirect restores the checkpoint verbatim; a frontend flush clears
+history.
+
+RAS push/pop hints follow the unprivileged ISA link-register convention for
+`x1` and `x5`. A JAL/JALR writing a link register pushes, a JALR reading a link
+register and not writing that same register pops, and a JALR using different
+link registers pops then pushes for coroutine switching. A zero-offset JALR
+that pops—including a coroutine pop-plus-push—may use the popped RAS top as its
+target. Every packet carries the full pre-operation stack snapshot, including
+entries, so redirect recovery reverses destructive pop and pop-plus-push
+operations exactly.
+
+`redirect_ras_sp_i`, `redirect_ras_count_i`, and `redirect_ras_entries_i`
+carry the backend-computed **post-resolved-instruction** RAS state. They are not
+an unmodified copy of the redirecting packet's pre-operation snapshot. The
+backend derives this corrected state from the packet snapshot and the resolved
+JAL/JALR hint, including pop-then-push for a coroutine, before issuing redirect.
+This makes recovery atomic without a second speculative RAS update in the
+redirect cycle.
+
 ## Backpressure and stale responses
 
 All packet payload and metadata remain stable while valid output is stalled.
@@ -94,6 +121,10 @@ Redirect and flush invalidate younger buffered output. The initial v0.1 fetch
 controller permits one instruction-stream request at a time and associates each
 response with its aligned request base; a delayed pre-redirect response must not
 become visible after recovery.
+
+Neither flush nor redirect can handshake the previously visible packet:
+`packet_valid_o` is masked during either recovery operation, and ordinary
+history/RAS advancement is disabled in the same cycle.
 
 ## Fetch-controller handshake
 

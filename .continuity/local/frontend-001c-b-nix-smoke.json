@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001c-b-nix-smoke",
+  "provider": "local-rootless-podman",
+  "command": "make nix-smoke",
+  "completed_at": "2026-08-24T13:18:50Z",
+  "status": "pass",
+  "candidate": {
+    "base_commit": "f0b746c4725d2f527278c65c572dc9f444a6608c",
+    "staged_diff_sha256": "fd1eb9803147771d4568f5ec39dfe7e59eb90b02468ce8f6be4ab937cb9860dd"
+  },
+  "environment": {
+    "host_distribution": "Bazzite",
+    "root_filesystem": "read-only composefs",
+    "runtime": "rootless podman",
+    "image": "docker.io/nixos/nix@sha256:617d914dba5384bf75adf17081583b69371031ec7defce36c34c5fa14fc819b0",
+    "image_id": "98edc6813218e179ce84587373e0b52d4aa58babae2d26b51fb01e7fdacf815f",
+    "store_volume": "codex-rv64-nix-store",
+    "source_mount": "read-only",
+    "pull_policy": "never"
+  },
+  "tools": {
+    "nix": "2.35.2",
+    "verilator": "5.018",
+    "yosys": "0.46 (e97731b9dda91fa5fa53ed87df7c34163ba59a41)",
+    "sv2v": "0.0.13"
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "dependency_lock_sha256": "b73ff1d8370227279402899dbb186e92a206fea8b75aac7d76f15eba557cb687",
+    "lock_updates_allowed": false,
+    "flake_config_accepted": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "rtl_lint": "pass",
+    "generic_synthesis": "pass",
+    "frontend_synthesis": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 93267,
+      "decompressor_checks": 65584,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "fetch_align_checks": 26768,
+      "fetch_controller_checks": 538,
+      "fetch_predictor_checks": 46,
+      "fetch_predictor_state_checks": 136,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    }
+  },
+  "resolved_findings": [
+    "Recovery and flush now mask the externally visible packet so an old-path packet cannot handshake during state restore.",
+    "Redirect RAS state is explicitly post-resolved-instruction state, including coroutine pop-plus-push behavior.",
+    "A fixed-width full-stack top index removes the negative part-select at a wrapped stack pointer.",
+    "Faulting branch-shaped lanes cannot advance speculative history."
+  ],
+  "artifacts": {
+    "rtl/frontend/fetch/rv64_fetch_predictor.sv": "39134ed899079051607d03fb4e28a2eff9cae921445b8c5264cec59cff2aee28",
+    "rtl/frontend/predictor/rv64_ras.sv": "77863e3c19be11e21f31e05f846db7b30ec3fb9b2173c0b7a66695f187a79a35",
+    "tests/frontend/fetch/fetch_predictor_state_tb.sv": "51d8686a210556e179597d8fbc345cf2195d86f38141c33c2bd1c7f28fa10d9b",
+    "tests/frontend/predictor/ras_tb.sv": "26f1dc7a52149f847ba00d97eb89256256ead44c8da55c84050a47bac4d01d64",
+    "docs/frontend-interface.md": "dec9c6171c0174a64eb3c0c688836ee477f1fc9af3a0447414286b059afca023",
+    "Makefile": "fbb5efb69a8d1c24eba98966a963d00a23e5731598e558e10b33da1bab5ad6f0"
+  },
+  "review": {
+    "role": "verification-reviewer",
+    "status": "ready",
+    "independent_checks": 146,
+    "scope": "speculative-history ordering and recovery, indirect confidence and alias rejection, RISC-V x1/x5 RAS hints, coroutine recovery, compressed returns, fault suppression, stable stalls, strict lint, and all frontend synthesis tops",
+    "claim_boundary": "Bounded frontend-001c-b readiness only; CORE-001 and the v0.1.0 milestone remain incomplete."
+  }
+}

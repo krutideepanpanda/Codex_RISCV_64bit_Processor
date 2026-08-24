@@ -56,7 +56,8 @@ module ras_tb;
     @(negedge clk); push_valid = 1; push_addr = 64'h2010; @(posedge clk); idle_cycle();
     @(negedge clk); push_valid = 1; push_addr = 64'h3010; @(posedge clk); idle_cycle();
     @(negedge clk); push_valid = 1; push_addr = 64'h4010; @(posedge clk); idle_cycle();
-    check(checkpoint_count_o == COUNT_W'(DEPTH), "stack reaches full depth");
+    check(checkpoint_count_o == COUNT_W'(DEPTH) && top_addr == 64'h4010,
+          "full stack wraps SP and selects the final entry as top");
     @(negedge clk);
     push_valid = 1; pop_valid = 1; push_addr = 64'h500c;
     @(posedge clk); idle_cycle();

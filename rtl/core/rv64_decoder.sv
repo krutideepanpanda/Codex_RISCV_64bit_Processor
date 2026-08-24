@@ -319,19 +319,109 @@ module rv64_decoder import rv64_pkg::*; (
             if (opcode == OP_IMM_32) decoded_o.illegal = 1'b1;
           end
           3'b001: begin
-            decoded_o.alu_op = (opcode == OP_IMM_32) ? ALU_SLLW : ALU_SLL;
-            if ((opcode == OP_IMM_32 && instruction_i[31:25] != 7'b0000000) ||
-                (opcode == OP_IMM && instruction_i[31:26] != 6'b000000))
-              decoded_o.illegal = 1'b1;
+            if (opcode == OP_IMM) begin
+              unique case (instruction_i[31:20])
+                // Zbb unary operations have no second architectural operand.
+                12'h600: begin
+                  decoded_o.alu_op = ALU_CLZ;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h601: begin
+                  decoded_o.alu_op = ALU_CTZ;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h602: begin
+                  decoded_o.alu_op = ALU_CPOP;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h604: begin
+                  decoded_o.alu_op = ALU_SEXTB;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h605: begin
+                  decoded_o.alu_op = ALU_SEXTH;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                default: begin
+                  // Zbs immediate single-bit operations use a six-bit RV64 index.
+                  unique case (instruction_i[31:26])
+                    6'b001010: decoded_o.alu_op = ALU_BSET;
+                    6'b010010: decoded_o.alu_op = ALU_BCLR;
+                    6'b011010: decoded_o.alu_op = ALU_BINV;
+                    default: begin
+                      decoded_o.alu_op = ALU_SLL;
+                      decoded_o.illegal = (instruction_i[31:26] != 6'b000000);
+                    end
+                  endcase
+                end
+              endcase
+            end else begin
+              unique case (instruction_i[31:20])
+                12'h600: begin
+                  decoded_o.alu_op = ALU_CLZW;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h601: begin
+                  decoded_o.alu_op = ALU_CTZW;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h602: begin
+                  decoded_o.alu_op = ALU_CPOPW;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                default: begin
+                  if (instruction_i[31:26] == 6'b000010) begin
+                    decoded_o.alu_op = ALU_SLLI_UW;
+                    decoded_o.word_op = 1'b0;
+                  end else begin
+                    decoded_o.alu_op = ALU_SLLW;
+                    decoded_o.illegal = (instruction_i[31:25] != 7'b0000000);
+                  end
+                end
+              endcase
+            end
           end
           3'b101: begin
-            if (opcode == OP_IMM_32) begin
-              decoded_o.alu_op = instruction_i[30] ? ALU_SRAW : ALU_SRLW;
-              decoded_o.illegal = !(funct7 inside {7'b0000000, 7'b0100000});
+            if (opcode == OP_IMM) begin
+              unique case (instruction_i[31:20])
+                // Zbb unary operations have no second architectural operand.
+                12'h287: begin
+                  decoded_o.alu_op = ALU_ORCB;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                12'h6b8: begin
+                  decoded_o.alu_op = ALU_REV8;
+                  decoded_o.imm_kind = IMM_NONE;
+                  decoded_o.operand_b_sel = OPB_ZERO;
+                end
+                default: begin
+                  unique case (instruction_i[31:26])
+                    6'b010010: decoded_o.alu_op = ALU_BEXT; // Zbs bexti
+                    6'b011000: decoded_o.alu_op = ALU_ROR;  // Zbb rori
+                    default: begin
+                      decoded_o.alu_op = instruction_i[30] ? ALU_SRA : ALU_SRL;
+                      decoded_o.illegal = !(instruction_i[31:26] inside
+                                             {6'b000000, 6'b010000});
+                    end
+                  endcase
+                end
+              endcase
             end else begin
-              decoded_o.alu_op = instruction_i[30] ? ALU_SRA : ALU_SRL;
-              decoded_o.illegal = !(instruction_i[31:26] inside {6'b000000,
-                                                                 6'b010000});
+              if (funct7 == 7'b0110000) begin
+                decoded_o.alu_op = ALU_RORW; // Zbb roriw
+              end else begin
+                decoded_o.alu_op = instruction_i[30] ? ALU_SRAW : ALU_SRLW;
+                decoded_o.illegal = !(funct7 inside {7'b0000000, 7'b0100000});
+              end
             end
           end
           default: decoded_o.illegal = 1'b1;
@@ -367,10 +457,67 @@ module rv64_decoder import rv64_pkg::*; (
               (opcode == OP_REG_32) ? ALU_SRAW : ALU_SRA;
             {7'b0000000, 3'b110}: decoded_o.alu_op = ALU_OR;
             {7'b0000000, 3'b111}: decoded_o.alu_op = ALU_AND;
+            // Zba shift-and-add operations.
+            {7'b0010000, 3'b010}: begin
+              decoded_o.alu_op =
+                (opcode == OP_REG_32) ? ALU_SH1ADD_UW : ALU_SH1ADD;
+              if (opcode == OP_REG_32) decoded_o.word_op = 1'b0;
+            end
+            {7'b0010000, 3'b100}: begin
+              decoded_o.alu_op =
+                (opcode == OP_REG_32) ? ALU_SH2ADD_UW : ALU_SH2ADD;
+              if (opcode == OP_REG_32) decoded_o.word_op = 1'b0;
+            end
+            {7'b0010000, 3'b110}: begin
+              decoded_o.alu_op =
+                (opcode == OP_REG_32) ? ALU_SH3ADD_UW : ALU_SH3ADD;
+              if (opcode == OP_REG_32) decoded_o.word_op = 1'b0;
+            end
+            // Zbb logical-with-negate, min/max, and rotations.
+            {7'b0100000, 3'b100}: decoded_o.alu_op = ALU_XNOR;
+            {7'b0100000, 3'b110}: decoded_o.alu_op = ALU_ORN;
+            {7'b0100000, 3'b111}: decoded_o.alu_op = ALU_ANDN;
+            {7'b0000101, 3'b100}: decoded_o.alu_op = ALU_MIN;
+            {7'b0000101, 3'b101}: decoded_o.alu_op = ALU_MINU;
+            {7'b0000101, 3'b110}: decoded_o.alu_op = ALU_MAX;
+            {7'b0000101, 3'b111}: decoded_o.alu_op = ALU_MAXU;
+            {7'b0110000, 3'b001}: decoded_o.alu_op =
+              (opcode == OP_REG_32) ? ALU_ROLW : ALU_ROL;
+            {7'b0110000, 3'b101}: decoded_o.alu_op =
+              (opcode == OP_REG_32) ? ALU_RORW : ALU_ROR;
+            // Zbs register-indexed single-bit operations.
+            {7'b0010100, 3'b001}: decoded_o.alu_op = ALU_BSET;
+            {7'b0100100, 3'b001}: decoded_o.alu_op = ALU_BCLR;
+            {7'b0100100, 3'b101}: decoded_o.alu_op = ALU_BEXT;
+            {7'b0110100, 3'b001}: decoded_o.alu_op = ALU_BINV;
+            // RV64 Zbb zext.h is encoded in OP-32 and requires rs2=x0.
+            {7'b0000100, 3'b100}: begin
+              decoded_o.alu_op = ALU_ZEXTH;
+              decoded_o.reads_rs2 = 1'b0;
+              decoded_o.operand_b_sel = OPB_ZERO;
+              decoded_o.word_op = 1'b0;
+              if (opcode != OP_REG_32 || instruction_i[24:20] != 5'b00000)
+                decoded_o.illegal = 1'b1;
+            end
+            {7'b0000100, 3'b000}: begin
+              decoded_o.alu_op = ALU_ADD_UW;
+              decoded_o.word_op = 1'b0;
+              if (opcode != OP_REG_32)
+                decoded_o.illegal = 1'b1;
+            end
             default: decoded_o.illegal = 1'b1;
           endcase
           if ((opcode == OP_REG_32) &&
-              !(funct3 inside {3'b000, 3'b001, 3'b101}))
+              !(((funct7 inside {7'b0000000, 7'b0100000}) &&
+                 (funct3 inside {3'b000, 3'b101})) ||
+                ((funct7 == 7'b0000000) && (funct3 == 3'b001)) ||
+                ((funct7 == 7'b0110000) &&
+                 (funct3 inside {3'b001, 3'b101})) ||
+                ((funct7 == 7'b0010000) &&
+                 (funct3 inside {3'b010, 3'b100, 3'b110})) ||
+                ((funct7 == 7'b0000100) && (funct3 == 3'b000)) ||
+                ((funct7 == 7'b0000100) && (funct3 == 3'b100) &&
+                 (instruction_i[24:20] == 5'b00000))))
             decoded_o.illegal = 1'b1;
         end
       end

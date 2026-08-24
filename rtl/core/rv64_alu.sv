@@ -13,6 +13,10 @@ module rv64_alu import rv64_pkg::*; (
   logic [6:0] clz_result;
   logic [6:0] ctz_result;
   logic [6:0] cpop_result;
+  logic [5:0] clzw_result;
+  logic [5:0] ctzw_result;
+  logic [5:0] cpopw_result;
+  xlen_t      lhs_uw;
   xlen_t orcb_result;
   xlen_t rev8_result;
 
@@ -53,6 +57,43 @@ module rv64_alu import rv64_pkg::*; (
     end
   endfunction
 
+  function automatic logic [5:0] count_leading_zeros_word(input logic [31:0] value);
+    logic found;
+    begin
+      count_leading_zeros_word = 6'd32;
+      found = 1'b0;
+      for (int i = 31; i >= 0; i--) begin
+        if (!found && value[i]) begin
+          count_leading_zeros_word = 6'(31 - i);
+          found = 1'b1;
+        end
+      end
+    end
+  endfunction
+
+  function automatic logic [5:0] count_trailing_zeros_word(input logic [31:0] value);
+    logic found;
+    begin
+      count_trailing_zeros_word = 6'd32;
+      found = 1'b0;
+      for (int i = 0; i < 32; i++) begin
+        if (!found && value[i]) begin
+          count_trailing_zeros_word = 6'(i);
+          found = 1'b1;
+        end
+      end
+    end
+  endfunction
+
+  function automatic logic [5:0] population_count_word(input logic [31:0] value);
+    logic [5:0] total;
+    begin
+      total = '0;
+      for (int i = 0; i < 32; i++) total = total + 6'(value[i]);
+      return total;
+    end
+  endfunction
+
   function automatic xlen_t byte_or_combine(input xlen_t value);
     xlen_t combined;
     begin
@@ -83,6 +124,10 @@ module rv64_alu import rv64_pkg::*; (
     clz_result = count_leading_zeros(lhs_i);
     ctz_result = count_trailing_zeros(lhs_i);
     cpop_result = population_count(lhs_i);
+    clzw_result = count_leading_zeros_word(lhs_w);
+    ctzw_result = count_trailing_zeros_word(lhs_w);
+    cpopw_result = population_count_word(lhs_w);
+    lhs_uw = {32'b0, lhs_w};
     orcb_result = byte_or_combine(lhs_i);
     rev8_result = reverse_bytes(lhs_i);
 
@@ -121,6 +166,14 @@ module rv64_alu import rv64_pkg::*; (
       ALU_SH1ADD: result_o = (lhs_i << 1) + rhs_i;
       ALU_SH2ADD: result_o = (lhs_i << 2) + rhs_i;
       ALU_SH3ADD: result_o = (lhs_i << 3) + rhs_i;
+      ALU_ADD_UW:    result_o = lhs_uw + rhs_i;
+      ALU_SH1ADD_UW: result_o = (lhs_uw << 1) + rhs_i;
+      ALU_SH2ADD_UW: result_o = (lhs_uw << 2) + rhs_i;
+      ALU_SH3ADD_UW: result_o = (lhs_uw << 3) + rhs_i;
+      ALU_SLLI_UW:   result_o = lhs_uw << shamt;
+      ALU_CLZW:      result_o = xlen_t'(clzw_result);
+      ALU_CTZW:      result_o = xlen_t'(ctzw_result);
+      ALU_CPOPW:     result_o = xlen_t'(cpopw_result);
       ALU_ADDW: begin
         result_w = lhs_w + rhs_w;
         result_o = {{32{result_w[31]}}, result_w};

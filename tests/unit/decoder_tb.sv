@@ -37,6 +37,22 @@ module decoder_tb;
                 message);
   endtask
 
+  task automatic assert_alu(
+    input logic [31:0] insn,
+    input alu_op_e expected_op,
+    input logic expected_word_op,
+    input string message
+  );
+    begin
+      apply(insn);
+      assert_true(!decoded.illegal && decoded.uop_class == UOP_ALU &&
+                  decoded.alu_op == expected_op &&
+                  decoded.reads_rs1 && decoded.writes_rd &&
+                  decoded.word_op == expected_word_op,
+                  message);
+    end
+  endtask
+
   initial begin
     checks = 0;
     instruction = '0;
@@ -185,6 +201,143 @@ module decoder_tb;
     assert_true(!decoded.illegal && decoded.reads_rs1 &&
                 !decoded.reads_fp_rs1 && decoded.writes_fp_rd,
                 "FMV.D.X cross-register-file controls");
+
+    // Zba: all represented XLEN shift-and-add encodings.
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b010, 5'd1, 7'b0110011},
+               ALU_SH1ADD, 1'b0, "SH1ADD decode");
+    assert_true(decoded.reads_rs2 && decoded.operand_b_sel == OPB_RS2 &&
+                decoded.imm_kind == IMM_NONE,
+                "SH1ADD uses a register second operand");
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0110011},
+               ALU_SH2ADD, 1'b0, "SH2ADD decode");
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b110, 5'd1, 7'b0110011},
+               ALU_SH3ADD, 1'b0, "SH3ADD decode");
+    assert_alu({7'b0000100, 5'd3, 5'd2, 3'b000, 5'd1, 7'b0111011},
+               ALU_ADD_UW, 1'b0, "ADD.UW decode");
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b010, 5'd1, 7'b0111011},
+               ALU_SH1ADD_UW, 1'b0, "SH1ADD.UW decode");
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0111011},
+               ALU_SH2ADD_UW, 1'b0, "SH2ADD.UW decode");
+    assert_alu({7'b0010000, 5'd3, 5'd2, 3'b110, 5'd1, 7'b0111011},
+               ALU_SH3ADD_UW, 1'b0, "SH3ADD.UW decode");
+    assert_alu({6'b000010, 6'd63, 5'd2, 3'b001, 5'd1, 7'b0011011},
+               ALU_SLLI_UW, 1'b0, "SLLI.UW six-bit shift decode");
+    assert_true(!decoded.reads_rs2 && decoded.operand_b_sel == OPB_IMM &&
+                decoded.imm_kind == IMM_I,
+                "SLLI.UW uses an immediate second operand");
+
+    // Zbb R-type logical, min/max, and rotate encodings.
+    assert_alu({7'b0100000, 5'd3, 5'd2, 3'b111, 5'd1, 7'b0110011},
+               ALU_ANDN, 1'b0, "ANDN decode");
+    assert_true(decoded.reads_rs2 && decoded.operand_b_sel == OPB_RS2 &&
+                decoded.imm_kind == IMM_NONE,
+                "ANDN uses a register second operand");
+    assert_alu({7'b0100000, 5'd3, 5'd2, 3'b110, 5'd1, 7'b0110011},
+               ALU_ORN, 1'b0, "ORN decode");
+    assert_alu({7'b0100000, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0110011},
+               ALU_XNOR, 1'b0, "XNOR decode");
+    assert_alu({7'b0000101, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0110011},
+               ALU_MIN, 1'b0, "MIN decode");
+    assert_alu({7'b0000101, 5'd3, 5'd2, 3'b101, 5'd1, 7'b0110011},
+               ALU_MINU, 1'b0, "MINU decode");
+    assert_alu({7'b0000101, 5'd3, 5'd2, 3'b110, 5'd1, 7'b0110011},
+               ALU_MAX, 1'b0, "MAX decode");
+    assert_alu({7'b0000101, 5'd3, 5'd2, 3'b111, 5'd1, 7'b0110011},
+               ALU_MAXU, 1'b0, "MAXU decode");
+    assert_alu({7'b0110000, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0110011},
+               ALU_ROL, 1'b0, "ROL decode");
+    assert_alu({7'b0110000, 5'd3, 5'd2, 3'b101, 5'd1, 7'b0110011},
+               ALU_ROR, 1'b0, "ROR decode");
+    assert_alu({7'b0110000, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0111011},
+               ALU_ROLW, 1'b1, "ROLW decode");
+    assert_alu({7'b0110000, 5'd3, 5'd2, 3'b101, 5'd1, 7'b0111011},
+               ALU_RORW, 1'b1, "RORW decode");
+
+    // Zbb unary encodings must not expose their encoded immediate as an operand.
+    assert_alu({12'h600, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_CLZ, 1'b0, "CLZ decode");
+    assert_true(decoded.imm_kind == IMM_NONE && decoded.operand_b_sel == OPB_ZERO,
+                "CLZ has no second operand");
+    assert_true(!decoded.reads_rs2, "CLZ must not read encoded unary selector");
+    assert_alu({12'h601, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_CTZ, 1'b0, "CTZ decode");
+    assert_alu({12'h602, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_CPOP, 1'b0, "CPOP decode");
+    assert_alu({12'h600, 5'd2, 3'b001, 5'd1, 7'b0011011},
+               ALU_CLZW, 1'b1, "CLZW decode");
+    assert_alu({12'h601, 5'd2, 3'b001, 5'd1, 7'b0011011},
+               ALU_CTZW, 1'b1, "CTZW decode");
+    assert_alu({12'h602, 5'd2, 3'b001, 5'd1, 7'b0011011},
+               ALU_CPOPW, 1'b1, "CPOPW decode");
+    assert_alu({12'h604, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_SEXTB, 1'b0, "SEXT.B decode");
+    assert_alu({12'h605, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_SEXTH, 1'b0, "SEXT.H decode");
+    assert_alu({7'b0000100, 5'd0, 5'd2, 3'b100, 5'd1, 7'b0111011},
+               ALU_ZEXTH, 1'b0, "ZEXT.H decode");
+    assert_true(!decoded.reads_rs2 && decoded.operand_b_sel == OPB_ZERO,
+                "ZEXT.H requires and ignores rs2=x0");
+    assert_alu({12'h287, 5'd2, 3'b101, 5'd1, 7'b0010011},
+               ALU_ORCB, 1'b0, "ORC.B decode");
+    assert_true(decoded.imm_kind == IMM_NONE && decoded.operand_b_sel == OPB_ZERO,
+                "ORC.B has no second operand");
+    assert_alu({12'h6b8, 5'd2, 3'b101, 5'd1, 7'b0010011},
+               ALU_REV8, 1'b0, "REV8 decode");
+
+    // Zbb and Zbs immediate forms use the exact RV64 six-bit shift/index field.
+    assert_alu({6'b011000, 6'd63, 5'd2, 3'b101, 5'd1, 7'b0010011},
+               ALU_ROR, 1'b0, "RORI shamt[5]=1 decode");
+    assert_true(immediate[5:0] == 6'd63, "RORI preserves RV64 shift amount");
+    assert_alu({7'b0110000, 5'd31, 5'd2, 3'b101, 5'd1, 7'b0011011},
+               ALU_RORW, 1'b1, "RORIW decode");
+    assert_true(immediate[4:0] == 5'd31, "RORIW preserves word shift amount");
+    assert_alu({6'b001010, 6'd63, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_BSET, 1'b0, "BSETI index[5]=1 decode");
+    assert_true(!decoded.reads_rs2 && decoded.operand_b_sel == OPB_IMM &&
+                decoded.imm_kind == IMM_I,
+                "BSETI uses an immediate bit index");
+    assert_alu({6'b010010, 6'd63, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_BCLR, 1'b0, "BCLRI index[5]=1 decode");
+    assert_alu({6'b011010, 6'd63, 5'd2, 3'b001, 5'd1, 7'b0010011},
+               ALU_BINV, 1'b0, "BINVI index[5]=1 decode");
+    assert_alu({6'b010010, 6'd63, 5'd2, 3'b101, 5'd1, 7'b0010011},
+               ALU_BEXT, 1'b0, "BEXTI index[5]=1 decode");
+
+    // Zbs register-indexed forms.
+    assert_alu({7'b0010100, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0110011},
+               ALU_BSET, 1'b0, "BSET decode");
+    assert_alu({7'b0100100, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0110011},
+               ALU_BCLR, 1'b0, "BCLR decode");
+    assert_alu({7'b0100100, 5'd3, 5'd2, 3'b101, 5'd1, 7'b0110011},
+               ALU_BEXT, 1'b0, "BEXT decode");
+    assert_alu({7'b0110100, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0110011},
+               ALU_BINV, 1'b0, "BINV decode");
+
+    // Near misses: wrong opcode family, malformed zext.h, and reserved forms.
+    apply({7'b0000100, 5'd3, 5'd2, 3'b000, 5'd1, 7'b0110011});
+    assert_illegal_contained("ADD.UW must not decode under OP");
+    apply({6'b000011, 6'd1, 5'd2, 3'b001, 5'd1, 7'b0011011});
+    assert_illegal_contained("reserved SLLI.UW prefix must trap safely");
+    apply({12'h603, 5'd2, 3'b001, 5'd1, 7'b0011011});
+    assert_illegal_contained("reserved word unary selector must trap safely");
+    apply({12'h603, 5'd2, 3'b001, 5'd1, 7'b0010011});
+    assert_illegal_contained("reserved XLEN unary selector 0x603 must trap safely");
+    apply({12'h606, 5'd2, 3'b001, 5'd1, 7'b0010011});
+    assert_illegal_contained("reserved XLEN unary selector 0x606 must trap safely");
+    apply({12'h698, 5'd2, 3'b101, 5'd1, 7'b0010011});
+    assert_illegal_contained("RV32 REV8 selector must trap in RV64");
+    apply({7'b0110001, 5'd0, 5'd2, 3'b101, 5'd1, 7'b0011011});
+    assert_illegal_contained("RORIW with reserved shamt bit 5 must trap safely");
+    apply({7'b0000100, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0111011});
+    assert_illegal_contained("ZEXT.H with nonzero rs2 must trap safely");
+    apply({7'b0110000, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0111011});
+    assert_illegal_contained("reserved OP-32 rotate funct3 must trap safely");
+    apply({7'b0100000, 5'd3, 5'd2, 3'b100, 5'd1, 7'b0111011});
+    assert_illegal_contained("XNOR is not an OP-32 instruction");
+    apply({7'b0010100, 5'd3, 5'd2, 3'b001, 5'd1, 7'b0111011});
+    assert_illegal_contained("BSET is not an OP-32 instruction");
+    apply({6'b001010, 6'd0, 5'd2, 3'b101, 5'd1, 7'b0010011});
+    assert_illegal_contained("Zbs opcode-family near miss must trap safely");
 
     // Invalid branch funct3=010.
     apply(32'h0020_a863);

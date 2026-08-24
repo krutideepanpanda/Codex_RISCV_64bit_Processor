@@ -10,7 +10,7 @@ RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
 SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
 
-.PHONY: help validate udb-profile lint unit frontend-unit test synth smoke smoke-components recovery-inspect checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help validate udb-profile lint unit frontend-unit test synth smoke smoke-components recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
@@ -23,6 +23,7 @@ help:
 	@echo "  synth  - synthesize the current implementation top with Yosys"
 	@echo "  smoke  - run foundation lint, unit, and synthesis checks"
 	@echo "  recovery-inspect - inspect interrupted state without mutation"
+	@echo "  recovery-drill   - record a checksummed clean-tree recovery smoke run"
 	@echo "  checkpoint-check - validate durable project state"
 	@echo "  resume-check     - validate state and rerun deterministic smoke tests"
 	@echo "  checkpoint       - commit/tag an accepted boundary (requires checkpoint variables)"
@@ -107,6 +108,10 @@ checkpoint-check:
 resume-check:
 	python3 scripts/continuity.py resume
 
+recovery-drill:
+	@test -n "$(DRILL_ID)" || (echo "DRILL_ID is required" >&2; exit 2)
+	python3 scripts/continuity.py recovery-drill --id "$(DRILL_ID)"
+
 checkpoint:
 	@test -n "$(CHECKPOINT_ID)" || (echo "CHECKPOINT_ID is required" >&2; exit 2)
 	@test -n "$(PHASE)" || (echo "PHASE is required" >&2; exit 2)
@@ -115,6 +120,8 @@ checkpoint:
 	python3 scripts/continuity.py checkpoint \
 		--id "$(CHECKPOINT_ID)" --phase "$(PHASE)" \
 		--summary "$(SUMMARY)" --next-action "$(NEXT)" \
+		$(if $(NEXT2),--next-action "$(NEXT2)") \
+		$(if $(NEXT3),--next-action "$(NEXT3)") \
 		$(if $(filter 1,$(EMERGENCY)),--emergency,)
 
 release-gate: checkpoint-check smoke

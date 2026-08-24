@@ -53,7 +53,15 @@ package rv64_pkg;
     ALU_BSET,
     ALU_SH1ADD,
     ALU_SH2ADD,
-    ALU_SH3ADD
+    ALU_SH3ADD,
+    ALU_ADD_UW,
+    ALU_SH1ADD_UW,
+    ALU_SH2ADD_UW,
+    ALU_SH3ADD_UW,
+    ALU_SLLI_UW,
+    ALU_CLZW,
+    ALU_CTZW,
+    ALU_CPOPW
   } alu_op_e;
 
   typedef enum logic [3:0] {
@@ -173,6 +181,9 @@ package rv64_pkg;
     logic       reads_fp_rs2;
     logic       reads_fp_rs3;
     logic       writes_fp_rd;
+    // True only when the architectural result uses ordinary RV64 W-result
+    // sign extension. Zba *.uw and slli.uw are XLEN-result operations even
+    // though their encodings occupy OP-32/OP-IMM-32.
     logic       word_op;
     logic       serialize;
   } decode_t;

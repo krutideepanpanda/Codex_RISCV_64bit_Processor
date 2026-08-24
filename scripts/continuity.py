@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 from typing import Any
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / ".continuity" / "CURRENT.yaml"
 HANDOFF_PATH = ROOT / ".continuity" / "HANDOFF.md"
 CHECKPOINT_DIR = ROOT / ".continuity" / "checkpoints"
+RECOVERY_DIR = ROOT / ".continuity" / "recovery-drills"
 LOCK_PATH = ROOT / "config" / "dependencies.lock.json"
 REQUIRED_STATE_KEYS = {
     "schema_version", "checkpoint_id", "checkpoint_ref", "mode", "phase",
@@ -164,6 +166,59 @@ def command_resume() -> None:
     print(f"resume check passed for {state['work_packet']}")
 
 
+def command_recovery_drill(args: argparse.Namespace) -> None:
+    if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", args.id):
+        raise ContinuityError("recovery drill id must use lowercase letters, digits, '.', '_' or '-'")
+    state = validate_state(require_clean=False)
+    prior_dirty = git_status()
+    if prior_dirty:
+        raise ContinuityError("recovery drill requires a clean source tree")
+    log_path = RECOVERY_DIR / f"{args.id}.smoke.log"
+    record_path = RECOVERY_DIR / f"{args.id}.json"
+    if log_path.exists() or record_path.exists():
+        raise ContinuityError(f"recovery drill {args.id} already exists")
+    result = subprocess.run(
+        ["make", "smoke", f"BUILD_DIR=build/recovery-drill/{args.id}"],
+        cwd=ROOT, check=False, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    )
+    print(result.stdout, end="")
+    RECOVERY_DIR.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(result.stdout, encoding="utf-8")
+    record = {
+        "schema_version": 1,
+        "id": args.id,
+        "checkpoint_id": state["checkpoint_id"],
+        "project_commit": run(["git", "rev-parse", "HEAD"]).stdout.strip(),
+        "dependency_lock_sha256": sha256(LOCK_PATH),
+        "status": "pass" if result.returncode == 0 else "fail",
+        "command": f"make smoke BUILD_DIR=build/recovery-drill/{args.id}",
+        "log": str(log_path.relative_to(ROOT)),
+        "log_sha256": sha256(log_path),
+    }
+    write_json(record_path, record)
+    state["tests"]["fresh-task recovery smoke"] = {
+        "status": record["status"],
+        "record": str(record_path.relative_to(ROOT)),
+        "sha256": sha256(record_path),
+    }
+    state["runs"] = [
+        *[item for item in state.get("runs", []) if item.get("id") != args.id],
+        {
+            "id": args.id,
+            "status": record["status"],
+            "log": record["log"],
+            "sha256": record["log_sha256"],
+        },
+    ]
+    write_json(STATE_PATH, state)
+    if result.returncode != 0:
+        raise ContinuityError(
+            f"recovery drill failed; preserved evidence at {record_path.relative_to(ROOT)}"
+        )
+    print(f"recovery drill {args.id} passed; commit the generated evidence at the next checkpoint")
+
+
 def command_checkpoint(args: argparse.Namespace) -> None:
     markers = sorted(ROOT.glob("build/**/.active-run"))
     if markers:
@@ -216,7 +271,7 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "phase": args.phase,
         "work_packet": args.id,
         "completed": [args.summary],
-        "next_actions": [args.next_action],
+        "next_actions": args.next_action,
         "tool_lock_sha256": lock_hash,
         "tests": {
             **state.get("tests", {}),
@@ -238,7 +293,9 @@ def command_checkpoint(args: argparse.Namespace) -> None:
         "# Current handoff\n\n"
         f"Checkpoint `{args.id}` is `{mode}` in phase `{args.phase}`.\n\n"
         f"Completed: {args.summary}\n\n"
-        f"Next action: {args.next_action}\n\n"
+        "Next actions:\n\n"
+        + "".join(f"{index}. {action}\n" for index, action in enumerate(args.next_action, 1))
+        + "\n"
         "Resume steps:\n\n"
         "1. Run `make resume-check`.\n"
         "2. Read `docs/requirements.md` and `.continuity/CURRENT.yaml`.\n"
@@ -248,7 +305,7 @@ def command_checkpoint(args: argparse.Namespace) -> None:
     write_json(CHECKPOINT_DIR / f"{args.id}.yaml", {
         "schema_version": 1, "id": args.id, "mode": mode,
         "phase": args.phase, "summary": args.summary,
-        "next_action": args.next_action,
+        "next_actions": args.next_action,
         "dependency_lock_sha256": lock_hash,
         "pre_checkpoint_changes": prior_changes,
         "tests": state["tests"],
@@ -342,11 +399,13 @@ def parse_args() -> argparse.Namespace:
     subparsers.add_parser("check")
     subparsers.add_parser("inspect")
     subparsers.add_parser("resume")
+    recovery_drill = subparsers.add_parser("recovery-drill")
+    recovery_drill.add_argument("--id", required=True)
     checkpoint = subparsers.add_parser("checkpoint")
     checkpoint.add_argument("--id", required=True)
     checkpoint.add_argument("--phase", required=True)
     checkpoint.add_argument("--summary", required=True)
-    checkpoint.add_argument("--next-action", required=True)
+    checkpoint.add_argument("--next-action", required=True, action="append")
     checkpoint.add_argument("--emergency", action="store_true")
     subparsers.add_parser("release-gate")
     return parser.parse_args()
@@ -358,6 +417,7 @@ def main() -> int:
         if args.command == "check": command_check()
         elif args.command == "inspect": command_inspect()
         elif args.command == "resume": command_resume()
+        elif args.command == "recovery-drill": command_recovery_drill(args)
         elif args.command == "checkpoint": command_checkpoint(args)
         elif args.command == "release-gate": command_release_gate()
     except (ContinuityError, subprocess.CalledProcessError) as exc:

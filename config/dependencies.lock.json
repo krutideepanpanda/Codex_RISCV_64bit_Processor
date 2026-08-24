@@ -83,6 +83,10 @@
         "config/cores/cvw/cvw-rv64gc/cvw-rv64gc.yaml": "f1b47a80701386f89450d2e9c26a2afb70980c7449480c91f0616b050b299224"
       }
     },
+    "riscv/riscv-opcodes": {
+      "revision": "c1d9bdfbc92a0ac30e8870106df9f55286e6c80a",
+      "purpose": "immutable instruction-encoding reference for decoder generation and review"
+    },
     "YosysHQ/sby": {
       "revision": "b1a1e98cba941ec8433f8dc27f416cd7bb7f14be"
     },

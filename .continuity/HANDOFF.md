@@ -1,10 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-004` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-005` is `emergency` in phase `foundation`.
 
-Completed: Real UDB validation passes; deterministic UDB profile, explicit system decode, warning-clean ALU synthesis, and 65,648-check smoke suite are preserved.
+Completed: Published the public GitHub repository; implemented and independently reviewed all 40 RV64 Zba/Zbb/Zbs encodings and semantics; added checksummed recovery-drill support; 65,735-check smoke suite passes.
 
-Next action: Create /nix with user authorization; install pinned Nix and generate flake.lock; run Nix smoke; authenticate GitHub; create and push public repository; then seal foundation-001.
+Next actions:
+
+1. Authorize creation of /nix for the pinned single-user Nix installation.
+2. Install pinned Nix, generate flake.lock, and pass nix flake check.
+3. Run and commit the fresh-task recovery drill evidence, then seal accepted checkpoint foundation-001.
 
 Resume steps:
 

@@ -139,24 +139,38 @@ def validate_dependency_lock() -> None:
 
     sv2v = dependency_lock.get("local_tools", {}).get("sv2v", {})
     try:
-        source_bytes = bytes.fromhex(sv2v["source_sha256"])
+        source_bytes = bytes.fromhex(sv2v["artifact_sha256"])
         expected_sri = "sha256-" + base64.b64encode(source_bytes).decode("ascii")
-        expected_url = sv2v["source_url"]
+        expected_url = sv2v["artifact_url"]
     except (KeyError, TypeError, ValueError) as exc:
         raise ValidationError("sv2v dependency requires a valid URL and SHA-256") from exc
     if len(source_bytes) != 32:
-        raise ValidationError("sv2v source_sha256 must encode exactly 32 bytes")
+        raise ValidationError("sv2v artifact_sha256 must encode exactly 32 bytes")
     flake_text = (ROOT / "flake.nix").read_text(encoding="utf-8")
-    fetch = re.search(
-        r'sv2vPackage\s*=.*?\(pkgs\.fetchurl\s*\{(?P<body>.*?)\}\)\s*\{\};',
+    package = re.search(
+        r'sv2vPackage\s*=\s*pkgs\.stdenv\.mkDerivation\s*\{(?P<body>.*?)\n\s*\};\n\s*in\s*\{',
         flake_text,
         flags=re.DOTALL,
     )
+    if not package:
+        raise ValidationError("flake.nix has no recognizable sv2v derivation")
+    package_body = package.group("body")
+    fetch = re.search(
+        r'src\s*=\s*pkgs\.fetchurl\s*\{(?P<body>.*?)\};',
+        package_body,
+        flags=re.DOTALL,
+    )
     if not fetch:
-        raise ValidationError("flake.nix has no recognizable sv2v fetchurl block")
+        raise ValidationError("flake.nix has no recognizable sv2v artifact fetch")
     body = fetch.group("body")
     if f'url = "{expected_url}";' not in body or f'hash = "{expected_sri}";' not in body:
         raise ValidationError("flake.nix sv2v source differs from dependency lock")
+    version = sv2v.get("version")
+    platform = sv2v.get("artifact_platform")
+    if (not isinstance(version, str) or f'version = "{version}";' not in package_body
+            or not isinstance(platform, str)
+            or f'platforms = [ "{platform}" ];' not in package_body):
+        raise ValidationError("flake.nix sv2v version/platform differs from dependency lock")
 
 
 def validate_recovery_drills() -> None:

@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-008",
+  "checkpoint_id": "foundation-recovery-009",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-008",
+  "work_packet": "foundation-recovery-009",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Committed the exact CI-generated flake.lock, corrected the sv2v source digest, and added graph-aware lock consistency validation; local 65,777-check smoke and synthesis pass."
+    "Replaced failing callCabal2nix sv2v packaging with a SHA-256-pinned upstream x86_64 release artifact and Nix autoPatchelf runtime closure; manifest bindings validate URL, digest, version, and platform."
   ],
   "next_actions": [
-    "Push foundation-recovery-008 and inspect the pinned Nix/OpenLane CI run.",
+    "Push foundation-recovery-009 and inspect the pinned Nix/OpenLane CI run.",
     "Record passing CI evidence or diagnose the next exact closure failure.",
     "Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration."
   ],
@@ -30,7 +30,7 @@
   },
   "seeds": [],
   "waivers": [],
-  "tool_lock_sha256": "06c39fb26d9c02dbc3ab38ab5f52bbc7d87dcacb97ca28f2d63f7607758302fa",
+  "tool_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
   "runs": [
     {
       "id": "fresh-task-001",

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-009",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Replaced failing callCabal2nix sv2v packaging with a SHA-256-pinned upstream x86_64 release artifact and Nix autoPatchelf runtime closure; manifest bindings validate URL, digest, version, and platform.",
+  "next_actions": [
+    "Push foundation-recovery-009 and inspect the pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence or diagnose the next exact closure failure.",
+    "Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration."
+  ],
+  "dependency_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
+  "pre_checkpoint_changes": [
+    " M config/dependencies.lock.json",
+    " M flake.nix",
+    " M scripts/validate-project.py"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
+  },
+  "smoke_log": null
+}

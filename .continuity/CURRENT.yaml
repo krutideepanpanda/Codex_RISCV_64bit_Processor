@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-012",
+  "checkpoint_id": "foundation-recovery-013",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-012",
+  "work_packet": "foundation-recovery-013",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Made TAGE set/way table addresses explicitly sized for pinned Verilator 5.018, added nonzero and maximum address tests, passed 65,779 local checks plus lint/synthesis, and received independent verification READY."
+    "Added pinned Clang to the Nix development and smoke closures because the OpenLane Verilator package generates harness builds for clang++; structural validation passes."
   ],
   "next_actions": [
-    "Push foundation-recovery-012 and inspect the pinned Nix/OpenLane CI run.",
-    "Record passing CI evidence or fix any remaining pinned-tool warnings.",
+    "Push foundation-recovery-013 and inspect the complete pinned Nix/OpenLane smoke run.",
+    "Record passing CI evidence or fix any remaining closure-specific issue.",
     "Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration."
   ],
   "blockers": [

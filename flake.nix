@@ -48,6 +48,7 @@
           bash
           boolector
           cachix
+          clang
           gcc
           git
           gnumake
@@ -68,7 +69,7 @@
 
       checks.${system}.smoke = pkgs.runCommand "codex-rv64-smoke" {
         nativeBuildInputs = with pkgs; [
-          bash gcc gnumake python3 python3Packages.pyyaml sv2vPackage
+          bash clang gcc gnumake python3 python3Packages.pyyaml sv2vPackage
           edaPkgs.verilator edaPkgs.yosys
         ];
         src = self;

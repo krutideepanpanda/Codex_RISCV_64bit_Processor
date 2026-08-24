@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-005` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-006` is `emergency` in phase `foundation`.
 
-Completed: Published the public GitHub repository; implemented and independently reviewed all 40 RV64 Zba/Zbb/Zbs encodings and semantics; added checksummed recovery-drill support; 65,735-check smoke suite passes.
+Completed: Fresh-context recovery drill reconstructed foundation-recovery-005 using repository state only and passed 65,735 checks; checksummed record and smoke log are now validated and durable.
 
 Next actions:
 
 1. Authorize creation of /nix for the pinned single-user Nix installation.
 2. Install pinned Nix, generate flake.lock, and pass nix flake check.
-3. Run and commit the fresh-task recovery drill evidence, then seal accepted checkpoint foundation-001.
+3. Seal accepted checkpoint foundation-001, then begin the remaining v0.1 frontend fetch/predictor/recovery work.
 
 Resume steps:
 

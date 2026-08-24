@@ -1,31 +1,43 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-005",
+  "checkpoint_id": "foundation-recovery-006",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-005",
+  "work_packet": "foundation-recovery-006",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Published the public GitHub repository; implemented and independently reviewed all 40 RV64 Zba/Zbb/Zbs encodings and semantics; added checksummed recovery-drill support; 65,735-check smoke suite passes."
+    "Fresh-context recovery drill reconstructed foundation-recovery-005 using repository state only and passed 65,735 checks; checksummed record and smoke log are now validated and durable."
   ],
   "next_actions": [
     "Authorize creation of /nix for the pinned single-user Nix installation.",
     "Install pinned Nix, generate flake.lock, and pass nix flake check.",
-    "Run and commit the fresh-task recovery drill evidence, then seal accepted checkpoint foundation-001."
+    "Seal accepted checkpoint foundation-001, then begin the remaining v0.1 frontend fetch/predictor/recovery work."
   ],
   "blockers": [
     "Nix is not installed",
     "flake.lock and the OpenLane Nix closure have not yet been generated and validated"
   ],
   "tests": {
-    "make smoke": "not-run (emergency)"
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
   },
   "seeds": [],
   "waivers": [],
   "tool_lock_sha256": "7146b9af90eb05ab0edd4c83e4d5cc622d3da2560123e6c46de236002671cdd8",
-  "runs": [],
+  "runs": [
+    {
+      "id": "fresh-task-001",
+      "status": "pass",
+      "log": ".continuity/recovery-drills/fresh-task-001.smoke.log",
+      "sha256": "2ca3818d78af20c762a81168fda369f8c8643b010a7982581331e0e76caddb52"
+    }
+  ],
   "artifacts": []
 }

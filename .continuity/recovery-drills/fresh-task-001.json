@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "fresh-task-001",
+  "checkpoint_id": "foundation-recovery-005",
+  "project_commit": "18d7f7ee03ab22b723388b507697179b035f4eed",
+  "dependency_lock_sha256": "7146b9af90eb05ab0edd4c83e4d5cc622d3da2560123e6c46de236002671cdd8",
+  "status": "pass",
+  "command": "make smoke BUILD_DIR=build/recovery-drill/fresh-task-001",
+  "log": ".continuity/recovery-drills/fresh-task-001.smoke.log",
+  "log_sha256": "2ca3818d78af20c762a81168fda369f8c8643b010a7982581331e0e76caddb52"
+}

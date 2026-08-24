@@ -6,6 +6,9 @@ artifacts/
 *.vcd
 *.log
 
+# Checksummed continuity evidence is compact, authoritative, and committed.
+!.continuity/**/*.log
+
 # Tool-local state
 .venv/
 __pycache__/
@@ -21,4 +24,3 @@ pdk/
 tools/
 third_party/*/
 !third_party/README.md
-

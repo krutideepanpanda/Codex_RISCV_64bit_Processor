@@ -32,6 +32,17 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def repository_path(value: Any, *, field: str) -> Path:
+    if not isinstance(value, str) or not value or Path(value).is_absolute():
+        raise ValidationError(f"{field} must be a non-empty repository-relative path")
+    path = (ROOT / value).resolve()
+    try:
+        path.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise ValidationError(f"{field} escapes the repository") from exc
+    return path
+
+
 def null_paths(value: Any, prefix: str = "") -> list[str]:
     result: list[str] = []
     if value is None:
@@ -53,6 +64,7 @@ def validate_json_control_files() -> None:
         ROOT / "coordination" / "work-packages.yaml",
     ]
     paths.extend(sorted((ROOT / ".continuity" / "checkpoints").glob("*.yaml")))
+    paths.extend(sorted((ROOT / ".continuity" / "recovery-drills").glob("*.json")))
     for path in paths:
         value = load_json(path)
         if not isinstance(value, dict):
@@ -77,6 +89,34 @@ def validate_json_control_files() -> None:
                 f"{packet_id} depends on unknown or later package(s): {', '.join(sorted(unknown))}"
             )
         known.add(packet_id)
+
+
+def validate_recovery_drills() -> None:
+    state = load_json(ROOT / ".continuity" / "CURRENT.yaml")
+    run_by_id = {
+        run.get("id"): run for run in state.get("runs", [])
+        if isinstance(run, dict) and isinstance(run.get("id"), str)
+    }
+    for record_path in sorted((ROOT / ".continuity" / "recovery-drills").glob("*.json")):
+        record = load_json(record_path)
+        drill_id = record.get("id")
+        if record.get("schema_version") != 1 or record.get("status") != "pass":
+            raise ValidationError(f"{record_path.relative_to(ROOT)} is not a passing v1 record")
+        if drill_id != record_path.stem:
+            raise ValidationError(f"{record_path.relative_to(ROOT)} id does not match its filename")
+        log_path = repository_path(record.get("log"), field=f"{drill_id}.log")
+        if not log_path.is_file() or sha256(log_path) != record.get("log_sha256"):
+            raise ValidationError(f"{record_path.relative_to(ROOT)} log is missing or stale")
+        run = run_by_id.get(drill_id)
+        if not run or run.get("status") != "pass" or run.get("log") != record.get("log"):
+            raise ValidationError(f"CURRENT.yaml does not reference recovery drill {drill_id}")
+        if run.get("sha256") != record.get("log_sha256"):
+            raise ValidationError(f"CURRENT.yaml has a stale log hash for {drill_id}")
+    test = state.get("tests", {}).get("fresh-task recovery smoke")
+    if test:
+        record_path = repository_path(test.get("record"), field="fresh-task recovery record")
+        if not record_path.is_file() or sha256(record_path) != test.get("sha256"):
+            raise ValidationError("CURRENT.yaml has stale fresh-task recovery evidence")
 
 
 def validate_toml() -> None:
@@ -166,6 +206,7 @@ def main() -> int:
         validate_toml()
         validate_skills()
         validate_udb_profile()
+        validate_recovery_drills()
     except ValidationError as exc:
         print(f"project validation error: {exc}", file=sys.stderr)
         return 2

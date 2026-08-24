@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-006",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Fresh-context recovery drill reconstructed foundation-recovery-005 using repository state only and passed 65,735 checks; checksummed record and smoke log are now validated and durable.",
+  "next_actions": [
+    "Authorize creation of /nix for the pinned single-user Nix installation.",
+    "Install pinned Nix, generate flake.lock, and pass nix flake check.",
+    "Seal accepted checkpoint foundation-001, then begin the remaining v0.1 frontend fetch/predictor/recovery work."
+  ],
+  "dependency_lock_sha256": "7146b9af90eb05ab0edd4c83e4d5cc622d3da2560123e6c46de236002671cdd8",
+  "pre_checkpoint_changes": [
+    " M .continuity/CURRENT.yaml",
+    " M .gitignore",
+    " M scripts/validate-project.py",
+    "?? .continuity/recovery-drills/fresh-task-001.json",
+    "?? .continuity/recovery-drills/fresh-task-001.smoke.log"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
+  },
+  "smoke_log": null
+}

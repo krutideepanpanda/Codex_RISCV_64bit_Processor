@@ -1,0 +1,157 @@
+make[1]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+./scripts/run-smoke.sh
+make[2]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+python3 scripts/validate-project.py
+project control files: valid
+bash -n scripts/*.sh
+python3 -m py_compile scripts/*.py
+verilator --lint-only --timing -Wall -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+	--top-module rv64_alu rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.315 MB sources in 7 modules, into 0.124 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.063 s (elab=0.006, cvt=0.039, bld=0.000); cpu 0.059 s on 1 threads; allocated 23.609 MB
+mkdir -p build/recovery-drill/fresh-task-001
+verilator --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	--top-module alu_tb -Mdir build/recovery-drill/fresh-task-001/obj_alu \
+	-o ../alu_unit rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv tests/unit/alu_tb.sv
+%Warning-UNUSEDPARAM: rtl/pkg/rv64_pkg.sv:5:26: Parameter is not used: 'ISSUE_WIDTH'
+                                              : ... note: In instance 'alu_tb.dut'
+    5 |   parameter int unsigned ISSUE_WIDTH = 2;
+      |                          ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.050
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: rtl/pkg/rv64_pkg.sv:6:26: Parameter is not used: 'ROB_ENTRIES'
+                                              : ... note: In instance 'alu_tb.dut'
+    6 |   parameter int unsigned ROB_ENTRIES = 64;
+      |                          ^~~~~~~~~~~
+%Warning-UNUSEDPARAM: rtl/pkg/rv64_pkg.sv:7:26: Parameter is not used: 'INT_PHYS_REGS'
+                                              : ... note: In instance 'alu_tb.dut'
+    7 |   parameter int unsigned INT_PHYS_REGS = 96;
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: rtl/pkg/rv64_pkg.sv:8:26: Parameter is not used: 'FP_PHYS_REGS'
+                                              : ... note: In instance 'alu_tb.dut'
+    8 |   parameter int unsigned FP_PHYS_REGS = 96;
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: rtl/pkg/rv64_pkg.sv:192:24: Bits of function variable are not used: 'instruction'[6:0]
+                                                 : ... note: In instance 'alu_tb.dut'
+  192 |     input logic [31:0] instruction,
+      |                        ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+make[3]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_alu'
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Valu_tb.cpp Valu_tb___024root__0.cpp Valu_tb__main.cpp Valu_tb___024root__Slow.cpp Valu_tb___024root__0__Slow.cpp Valu_tb__Syms__Slow.cpp > Valu_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Valu_tb__ALL.o Valu_tb__ALL.cpp
+c++    verilated.o verilated_timing.o verilated_threads.o Valu_tb__ALL.a    -pthread -lpthread -latomic   -o ../alu_unit
+rm Valu_tb__ALL.verilator_deplist.tmp
+make[3]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_alu'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.389 MB sources in 8 modules, into 0.254 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 11.597 s (elab=0.007, cvt=0.063, bld=11.504); cpu 0.093 s on 1 threads; allocated 24.812 MB
+mkdir -p build/recovery-drill/fresh-task-001
+verilator --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+	--top-module decoder_tb -Mdir build/recovery-drill/fresh-task-001/obj_decoder \
+	-o ../decoder_unit rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv tests/unit/decoder_tb.sv
+make[3]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_decoder'
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdecoder_tb.cpp Vdecoder_tb___024root__0.cpp Vdecoder_tb__main.cpp Vdecoder_tb__ConstPool__0__Slow.cpp Vdecoder_tb___024root__Slow.cpp Vdecoder_tb___024root__0__Slow.cpp Vdecoder_tb__Syms__Slow.cpp > Vdecoder_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Vdecoder_tb__ALL.o Vdecoder_tb__ALL.cpp
+c++    verilated.o verilated_timing.o verilated_threads.o Vdecoder_tb__ALL.a    -pthread -lpthread -latomic   -o ../decoder_unit
+rm Vdecoder_tb__ALL.verilator_deplist.tmp
+make[3]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_decoder'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.400 MB sources in 8 modules, into 0.457 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 12.809 s (elab=0.011, cvt=0.116, bld=12.649); cpu 0.159 s on 1 threads; allocated 26.664 MB
+mkdir -p build/recovery-drill/fresh-task-001
+verilator --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+	--top-module rv64c_decompress_tb -Mdir build/recovery-drill/fresh-task-001/obj_decompress \
+	-o ../decompress_unit rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv tests/frontend/decompress/rv64c_decompress_tb.sv
+make[3]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_decompress'
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrv64c_decompress_tb.cpp Vrv64c_decompress_tb___024root__0.cpp Vrv64c_decompress_tb__main.cpp Vrv64c_decompress_tb___024root__Slow.cpp Vrv64c_decompress_tb___024root__0__Slow.cpp Vrv64c_decompress_tb__Syms__Slow.cpp > Vrv64c_decompress_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Vrv64c_decompress_tb__ALL.o Vrv64c_decompress_tb__ALL.cpp
+c++    verilated.o verilated_timing.o verilated_threads.o Vrv64c_decompress_tb__ALL.a    -pthread -lpthread -latomic   -o ../decompress_unit
+rm Vrv64c_decompress_tb__ALL.verilator_deplist.tmp
+make[3]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_decompress'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.389 MB sources in 8 modules, into 0.226 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 11.242 s (elab=0.009, cvt=0.036, bld=11.174); cpu 0.068 s on 1 threads; allocated 23.594 MB
+mkdir -p build/recovery-drill/fresh-task-001
+verilator --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+	--top-module ras_tb -Mdir build/recovery-drill/fresh-task-001/obj_ras \
+	-o ../ras_unit rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv tests/frontend/predictor/ras_tb.sv
+make[3]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_ras'
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vras_tb.cpp Vras_tb___024root__0.cpp Vras_tb__main.cpp Vras_tb__ConstPool__0__Slow.cpp Vras_tb___024root__Slow.cpp Vras_tb___024root__0__Slow.cpp Vras_tb__Syms__Slow.cpp > Vras_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Vras_tb__ALL.o Vras_tb__ALL.cpp
+c++    verilated.o verilated_timing.o verilated_threads.o Vras_tb__ALL.a    -pthread -lpthread -latomic   -o ../ras_unit
+rm Vras_tb__ALL.verilator_deplist.tmp
+make[3]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_ras'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.387 MB sources in 8 modules, into 0.095 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 10.469 s (elab=0.007, cvt=0.016, bld=10.427); cpu 0.041 s on 1 threads; allocated 22.887 MB
+mkdir -p build/recovery-drill/fresh-task-001
+verilator --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+	--top-module btb_tb -Mdir build/recovery-drill/fresh-task-001/obj_btb \
+	-o ../btb_unit rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_ras.sv tests/frontend/predictor/btb_tb.sv
+make[3]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_btb'
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vbtb_tb.cpp Vbtb_tb___024root__0.cpp Vbtb_tb__main.cpp Vbtb_tb___024root__Slow.cpp Vbtb_tb___024root__0__Slow.cpp Vbtb_tb__Syms__Slow.cpp > Vbtb_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include -I/var/home/linuxbrew/.linuxbrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Vbtb_tb__ALL.o Vbtb_tb__ALL.cpp
+c++    verilated.o verilated_timing.o verilated_threads.o Vbtb_tb__ALL.a    -pthread -lpthread -latomic   -o ../btb_unit
+rm Vbtb_tb__ALL.verilator_deplist.tmp
+make[3]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor/build/recovery-drill/fresh-task-001/obj_btb'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.386 MB sources in 8 modules, into 0.073 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 10.151 s (elab=0.006, cvt=0.028, bld=10.100); cpu 0.052 s on 1 threads; allocated 22.840 MB
+build/recovery-drill/fresh-task-001/decompress_unit
+PASS: 65584 decompressor checks (46743 legal encodings)
+- tests/frontend/decompress/rv64c_decompress_tb.sv:103: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 66ns; walltime 0.016 s; speed 4.014 us/s
+- Verilator: cpu 0.016 s on 1 threads; allocated 6 MB
+build/recovery-drill/fresh-task-001/ras_unit
+PASS: 10 RAS checks
+- tests/frontend/predictor/ras_tb.sv:68: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 285ps; walltime 0.000 s; speed 4.160 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/recovery-drill/fresh-task-001/btb_unit
+PASS: 6 BTB checks
+- tests/frontend/predictor/btb_tb.sv:48: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 121ps; walltime 0.000 s; speed 1.695 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/recovery-drill/fresh-task-001/alu_unit
+PASS: 50 ALU checks
+- tests/unit/alu_tb.sv:108: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 50ps; walltime 0.000 s; speed 600.593 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/recovery-drill/fresh-task-001/decoder_unit
+PASS: 85 decoder vectors
+- tests/unit/decoder_tb.sv:347: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 86ps; walltime 0.000 s; speed 987.461 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+mkdir -p build/recovery-drill/fresh-task-001
+sv2v --write=build/recovery-drill/fresh-task-001/rtl-yosys.v rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv
+yosys -q -e '.*' -p 'read_verilog build/recovery-drill/fresh-task-001/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
+	-l build/recovery-drill/fresh-task-001/synth.log
+make[2]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+make[1]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'

@@ -66,6 +66,7 @@ def validate_json_control_files() -> None:
         ROOT / "coordination" / "work-packages.yaml",
     ]
     paths.extend(sorted((ROOT / ".continuity" / "checkpoints").glob("*.yaml")))
+    paths.extend(sorted((ROOT / ".continuity" / "ci").glob("*.json")))
     paths.extend(sorted((ROOT / ".continuity" / "recovery-drills").glob("*.json")))
     for path in paths:
         value = load_json(path)
@@ -201,6 +202,29 @@ def validate_recovery_drills() -> None:
             raise ValidationError("CURRENT.yaml has stale fresh-task recovery evidence")
 
 
+def validate_ci_evidence() -> None:
+    state = load_json(ROOT / ".continuity" / "CURRENT.yaml")
+    run_by_id = {
+        run.get("id"): run for run in state.get("runs", [])
+        if isinstance(run, dict) and isinstance(run.get("id"), str)
+    }
+    for record_path in sorted((ROOT / ".continuity" / "ci").glob("*.json")):
+        record = load_json(record_path)
+        record_id = record.get("id")
+        if record.get("schema_version") != 1 or record.get("status") != "pass":
+            raise ValidationError(f"{record_path.relative_to(ROOT)} is not a passing v1 record")
+        if record_id != record_path.stem:
+            raise ValidationError(f"{record_path.relative_to(ROOT)} id does not match its filename")
+        if not re.fullmatch(r"[0-9a-f]{40}", str(record.get("head_sha", ""))):
+            raise ValidationError(f"{record_path.relative_to(ROOT)} has an invalid head SHA")
+        run = run_by_id.get(record_id)
+        relative = str(record_path.relative_to(ROOT))
+        if not run or run.get("status") != "pass" or run.get("record") != relative:
+            raise ValidationError(f"CURRENT.yaml does not reference CI evidence {record_id}")
+        if run.get("sha256") != sha256(record_path):
+            raise ValidationError(f"CURRENT.yaml has a stale CI evidence hash for {record_id}")
+
+
 def validate_toml() -> None:
     paths = [ROOT / ".codex" / "config.toml"]
     paths.extend(sorted((ROOT / ".codex" / "agents").glob("*.toml")))
@@ -290,6 +314,7 @@ def main() -> int:
         validate_skills()
         validate_udb_profile()
         validate_recovery_drills()
+        validate_ci_evidence()
     except ValidationError as exc:
         print(f"project validation error: {exc}", file=sys.stderr)
         return 2

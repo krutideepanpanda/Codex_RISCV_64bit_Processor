@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-016` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-017` is `emergency` in phase `foundation`.
 
-Completed: Removed the non-portable PROCASSINIT warning suppression rejected by pinned Verilator 5.018; RAS and BTB tests, frontend lint, and validation pass.
+Completed: Recorded passing pinned Nix CI run 32704545610 with 65,779 unit checks, lint, validation, and synthesis smoke; added checksummed CI evidence validation and cleared the CI blocker.
 
 Next actions:
 
-1. Push foundation-recovery-016 and inspect the pinned Nix/OpenLane smoke run.
-2. Record passing CI evidence or fix any remaining closure-specific issue.
-3. Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration.
+1. Install the pinned Nix environment on the local Bazzite host and run make smoke inside it.
+2. Seal accepted checkpoint foundation-001 after local locked-environment validation passes.
+3. Continue v0.1 fetch integration from the accepted foundation boundary.
 
 Resume steps:
 

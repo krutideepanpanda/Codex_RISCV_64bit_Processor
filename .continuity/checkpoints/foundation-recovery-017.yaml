@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-017",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Recorded passing pinned Nix CI run 32704545610 with 65,779 unit checks, lint, validation, and synthesis smoke; added checksummed CI evidence validation and cleared the CI blocker.",
+  "next_actions": [
+    "Install the pinned Nix environment on the local Bazzite host and run make smoke inside it.",
+    "Seal accepted checkpoint foundation-001 after local locked-environment validation passes.",
+    "Continue v0.1 fetch integration from the accepted foundation boundary."
+  ],
+  "dependency_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
+  "pre_checkpoint_changes": [
+    " M .continuity/CURRENT.yaml",
+    " M scripts/validate-project.py",
+    "?? .continuity/ci/foundation-nix-smoke-32704545610.json"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    },
+    "pinned Nix CI smoke": {
+      "status": "pass",
+      "record": ".continuity/ci/foundation-nix-smoke-32704545610.json",
+      "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
+      "total_unit_checks": 65779
+    }
+  },
+  "smoke_log": null
+}

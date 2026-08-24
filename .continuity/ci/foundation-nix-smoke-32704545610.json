@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "foundation-nix-smoke-32704545610",
+  "provider": "github-actions",
+  "workflow": ".github/workflows/ci.yml",
+  "run_id": 32704545610,
+  "run_url": "https://github.com/krutideepanpanda/Codex_RISCV_64bit_Processor/actions/runs/32704545610",
+  "head_sha": "f86c20a5d1e9177e51ec40640a34bc4c8009255f",
+  "status": "pass",
+  "started_at": "2026-08-24T08:05:33Z",
+  "completed_at": "2026-08-24T08:07:40Z",
+  "job": {
+    "id": 97362766476,
+    "name": "Pinned lint, unit, and synthesis smoke",
+    "status": "pass",
+    "duration_seconds": 123
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "lock_updates_allowed": false,
+    "openlane_cachix_enabled": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "lint": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 65779,
+      "decompressor_checks": 65584,
+      "decompressor_legal_encodings": 46743,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    },
+    "synthesis_smoke": "pass"
+  },
+  "non_gating_annotations": [
+    "GitHub forced Node.js 20 actions to Node.js 24; update checkout and artifact action pins in a later dependency-maintenance packet."
+  ]
+}

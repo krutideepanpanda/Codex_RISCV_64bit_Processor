@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001a-nix-smoke",
+  "provider": "local-rootless-podman",
+  "command": "make nix-smoke",
+  "completed_at": "2026-08-24T09:21:29Z",
+  "status": "pass",
+  "environment": {
+    "host_distribution": "Bazzite",
+    "root_filesystem": "read-only composefs",
+    "runtime": "rootless podman",
+    "image": "docker.io/nixos/nix@sha256:617d914dba5384bf75adf17081583b69371031ec7defce36c34c5fa14fc819b0",
+    "image_id": "98edc6813218e179ce84587373e0b52d4aa58babae2d26b51fb01e7fdacf815f",
+    "store_volume": "codex-rv64-nix-store",
+    "source_mount": "read-only",
+    "pull_policy": "never"
+  },
+  "tools": {
+    "nix": "2.35.2",
+    "verilator": "5.018",
+    "yosys": "0.46 (e97731b9dda91fa5fa53ed87df7c34163ba59a41)",
+    "sv2v": "0.0.13"
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "dependency_lock_sha256": "c748424dd1458dc010da8072354af230c21914d809077368606bd16af642bed6",
+    "lock_updates_allowed": false,
+    "flake_config_accepted": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "rtl_lint": "pass",
+    "generic_synthesis": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 92547,
+      "decompressor_checks": 65584,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "fetch_align_checks": 26768,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    }
+  },
+  "fetch_align_random": {
+    "seed": "0x5eed1234",
+    "cases": 2048,
+    "offset_bins": 8,
+    "lane_0": {
+      "success": 468,
+      "missing": 1294,
+      "first_pair_fault": 191,
+      "tail_fault": 95
+    },
+    "lane_1": {
+      "success": 104,
+      "missing": 302,
+      "first_pair_fault": 38,
+      "tail_fault": 24
+    }
+  },
+  "artifacts": {
+    "rtl/frontend/fetch/rv64_fetch_align.sv": "9db3a797382a8d0f503f1d1090405b4ed3018bafd9d975b942c986e319ee00e3",
+    "tests/frontend/fetch/fetch_align_tb.sv": "bbaa5be83fc9a5fe61bdda59928484fa6bbdeefed617a0d428f84fcc0f6f9f8b",
+    "docs/frontend-interface.md": "02cc5e1c6b665e17f8e6b391429e6c9397ab3cc5974fa610c5eda3d1e4103947",
+    "Makefile": "ef96adea5e4d863d6657d9ac6932c16322311a826150945e9650c1835bb233f2"
+  },
+  "review": {
+    "role": "verification-reviewer",
+    "agent_id": "01a032a1-554d-7583-bca4-67d092b43e23",
+    "status": "ready",
+    "finding_1": "resolved",
+    "independent_checks": 26768,
+    "independent_binary_sha256": "72811142e9f3921e72b903ef0848020f3f6821233bbdd0809bae6ec46525b529"
+  }
+}

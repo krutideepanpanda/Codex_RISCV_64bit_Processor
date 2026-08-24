@@ -60,6 +60,7 @@ launcher is never used.
 
 See [docs/architecture.md](docs/architecture.md),
 [docs/architectural-parameters.md](docs/architectural-parameters.md),
+[docs/frontend-interface.md](docs/frontend-interface.md),
 [docs/verification.md](docs/verification.md), and
 [docs/physical-design.md](docs/physical-design.md) for the binding v1 contract.
 

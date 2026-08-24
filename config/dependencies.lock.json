@@ -40,6 +40,23 @@
       "source_sha256": "608d758a6efc73c9f866b0a822aa2f788c2889fcb70dcdcc0e758009465049f6"
     }
   },
+  "locked_nix_tools": {
+    "policy": "These are the exact executable versions in the flake.lock-pinned OpenLane Nix closure; local_tools records the separately qualified host tool line.",
+    "source": "openlane.legacyPackages.x86_64-linux at efabless/openlane2 b89f7866fd3d19da470220baf89d0e7804962941",
+    "nix": {
+      "version": "2.35.2"
+    },
+    "sv2v": {
+      "version": "0.0.13"
+    },
+    "verilator": {
+      "version": "5.018"
+    },
+    "yosys": {
+      "version": "0.46",
+      "revision": "e97731b9dda91fa5fa53ed87df7c34163ba59a41"
+    }
+  },
   "sources": {
     "actions/checkout": {
       "version": "v4.2.2",

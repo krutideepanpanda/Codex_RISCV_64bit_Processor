@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-001` is `accepted` in phase `foundation`.
+Checkpoint `frontend-001a` is `accepted` in phase `v0.1.0`.
 
-Completed: Accepted the durable foundation: audited draft, pinned dependencies and Nix/OpenLane closure, public GitHub repository, continuity recovery drill, multi-agent/skill controls, passing local and CI locked smoke evidence, and Bazzite-safe digest-pinned tooling.
+Completed: Accepted two-wide RV64C/native fetch alignment with attributable terminal faults, frozen frontend semantics, 26,768-check seeded outcome coverage, locked Nix smoke, and independent verification READY.
 
 Next actions:
 
-1. Start v0.1.0 fetch integration by auditing the frozen frontend interfaces and assigning disjoint fetch and predictor work packets.
-2. Implement bounded fetch and predictor integration with assertions and self-checking unit tests.
-3. Require independent verification review before the v0.1 frontend checkpoint.
+1. Implement the one-outstanding-request fetch controller with redirect and flush stale-response suppression.
+2. Integrate BTB, TAGE-lite, 32-entry indirect prediction, and full RAS/history recovery metadata.
+3. Add recovery and backpressure assertions and obtain independent review before the v0.1.0 milestone gate.
 
 Resume steps:
 

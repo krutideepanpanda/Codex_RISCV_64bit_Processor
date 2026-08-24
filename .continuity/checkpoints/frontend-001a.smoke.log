@@ -1,0 +1,97 @@
+make[1]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+./scripts/run-smoke.sh
+make[2]: Entering directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+python3 scripts/validate-project.py
+project control files: valid
+bash -n scripts/*.sh
+python3 -m py_compile scripts/*.py
+verilator --lint-only --timing -Wall -Wno-DECLFILENAME \
+	-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+	--top-module rv64_alu rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv rtl/core/rv64_decoder.sv rtl/frontend/decompress/rv64c_decompress.sv rtl/frontend/fetch/rv64_fetch_align.sv rtl/frontend/predictor/rv64_btb.sv rtl/frontend/predictor/rv64_indirect_predictor.sv rtl/frontend/predictor/rv64_ras.sv rtl/frontend/predictor/rv64_spec_history.sv rtl/frontend/predictor/rv64_tage_lite.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.664 MB sources in 11 modules, into 0.124 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.074 s (elab=0.011, cvt=0.039, bld=0.000); cpu 0.074 s on 1 threads; allocated 24.430 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.073 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.047 s (elab=0.006, cvt=0.025, bld=0.000); cpu 0.047 s on 1 threads; allocated 22.578 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.018 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.003, cvt=0.006, bld=0.000); cpu 0.022 s on 1 threads; allocated 22.363 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.089 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.031 s (elab=0.003, cvt=0.011, bld=0.000); cpu 0.030 s on 1 threads; allocated 22.363 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.027 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.022 s (elab=0.003, cvt=0.005, bld=0.000); cpu 0.022 s on 1 threads; allocated 22.359 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.225 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.093 s (elab=0.004, cvt=0.069, bld=0.000); cpu 0.090 s on 1 threads; allocated 23.172 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.122 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.032 s (elab=0.004, cvt=0.010, bld=0.000); cpu 0.032 s on 1 threads; allocated 22.367 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.323 MB sources in 8 modules, into 0.173 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 0.072 s (elab=0.006, cvt=0.049, bld=0.000); cpu 0.072 s on 1 threads; allocated 24.531 MB
+build/decompress_unit
+PASS: 65584 decompressor checks (46743 legal encodings)
+- tests/frontend/decompress/rv64c_decompress_tb.sv:103: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 66ns; walltime 0.015 s; speed 4.237 us/s
+- Verilator: cpu 0.015 s on 1 threads; allocated 6 MB
+build/ras_unit
+PASS: 10 RAS checks
+- tests/frontend/predictor/ras_tb.sv:68: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 285ps; walltime 0.000 s; speed 4.431 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/btb_unit
+PASS: 6 BTB checks
+- tests/frontend/predictor/btb_tb.sv:51: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 121ps; walltime 0.000 s; speed 1.980 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/spec_history_unit
+PASS: 9 speculative-history checks
+- tests/frontend/predictor/spec_history_tb.sv:117: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 76ps; walltime 0.000 s; speed 1.274 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/tage_lite_unit
+PASS: 17 TAGE-lite checks
+- tests/frontend/predictor/tage_lite_tb.sv:174: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 581ps; walltime 0.000 s; speed 6.236 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/indirect_predictor_unit
+PASS: 18 indirect predictor checks
+- tests/frontend/predictor/indirect_predictor_tb.sv:84: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 371ps; walltime 0.000 s; speed 4.361 us/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/fetch_align_unit
+COVERAGE lane 0: success=468 missing=1294 first_fault=191 tail_fault=95
+COVERAGE lane 1: success=104 missing=302 first_fault=38 tail_fault=24
+PASS: 26768 fetch-align checks (random seed 5eed1234)
+- tests/frontend/fetch/fetch_align_tb.sv:258: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 2ns; walltime 0.014 s; speed 144.761 ns/s
+- Verilator: cpu 0.014 s on 1 threads; allocated 6 MB
+build/alu_unit
+PASS: 50 ALU checks
+- tests/unit/alu_tb.sv:108: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 50ps; walltime 0.000 s; speed 600.593 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+build/decoder_unit
+PASS: 85 decoder vectors
+- tests/unit/decoder_tb.sv:347: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 86ps; walltime 0.000 s; speed 999.477 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 6 MB
+mkdir -p build
+sv2v --write=build/rtl-yosys.v rtl/pkg/rv64_pkg.sv rtl/core/rv64_alu.sv
+yosys -q -e '.*' -p 'read_verilog build/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
+	-l build/synth.log
+mkdir -p build
+make[2]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'
+make[1]: Leaving directory '/var/home/bazzite/Codex_RISCV_64bit_Processor'

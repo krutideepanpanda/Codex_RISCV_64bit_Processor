@@ -9,8 +9,9 @@ RTL_PACKAGE_FILES := $(shell find rtl/pkg -type f \( -name '*.sv' -o -name '*.v'
 RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*.sv' -o -name '*.v' \) -print | sort)
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
 SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
+FRONTEND_RTL_FILES := $(shell find rtl/frontend -type f \( -name '*.sv' -o -name '*.v' \) | sort)
 FRONTEND_TOPS := rv64c_decompress rv64_ras rv64_btb rv64_spec_history \
-	rv64_tage_lite rv64_indirect_predictor
+	rv64_tage_lite rv64_indirect_predictor rv64_fetch_align
 
 .PHONY: help validate udb-profile lint frontend-lint unit frontend-unit test synth frontend-synth smoke smoke-components nix-pull nix-smoke nix-shell recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
 
@@ -21,7 +22,7 @@ help:
 	@echo "  validate - validate control files, agent config, skills, and dependency locks"
 	@echo "  udb-profile - regenerate the normative profile from pinned ACT data"
 	@echo "  unit   - compile and run fast RTL unit tests"
-	@echo "  frontend-unit - run decompressor and predictor unit tests"
+	@echo "  frontend-unit - run fetch, decompressor, and predictor unit tests"
 	@echo "  test   - run lint and unit targets"
 	@echo "  synth  - synthesize the current implementation top with Yosys"
 	@echo "  smoke  - run foundation lint, unit, and synthesis checks"
@@ -51,9 +52,9 @@ lint:
 
 frontend-lint:
 	@for top in $(FRONTEND_TOPS); do \
-		src=$$(find rtl/frontend -name "$$top.sv" -print -quit); \
 		$(VERILATOR) --lint-only -Wall -Wno-DECLFILENAME \
-			-Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET "$$src" || exit 1; \
+			-Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET \
+			--top-module "$$top" $(FRONTEND_RTL_FILES) || exit 1; \
 	done
 
 unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
@@ -62,13 +63,14 @@ unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
 
 frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit \
 	$(BUILD_DIR)/spec_history_unit $(BUILD_DIR)/tage_lite_unit \
-	$(BUILD_DIR)/indirect_predictor_unit
+	$(BUILD_DIR)/indirect_predictor_unit $(BUILD_DIR)/fetch_align_unit
 	$(BUILD_DIR)/decompress_unit
 	$(BUILD_DIR)/ras_unit
 	$(BUILD_DIR)/btb_unit
 	$(BUILD_DIR)/spec_history_unit
 	$(BUILD_DIR)/tage_lite_unit
 	$(BUILD_DIR)/indirect_predictor_unit
+	$(BUILD_DIR)/fetch_align_unit
 
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
@@ -125,6 +127,13 @@ $(BUILD_DIR)/indirect_predictor_unit: rtl/frontend/predictor/rv64_indirect_predi
 		--top-module indirect_predictor_tb -Mdir $(BUILD_DIR)/obj_indirect_predictor \
 		-o ../indirect_predictor_unit $^
 
+$(BUILD_DIR)/fetch_align_unit: rtl/frontend/decompress/rv64c_decompress.sv \
+	rtl/frontend/fetch/rv64_fetch_align.sv tests/frontend/fetch/fetch_align_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDSIGNAL --top-module fetch_align_tb -Mdir $(BUILD_DIR)/obj_fetch_align \
+		-o ../fetch_align_unit $^
+
 test: validate lint frontend-lint unit
 
 synth:
@@ -136,8 +145,7 @@ synth:
 frontend-synth:
 	mkdir -p $(BUILD_DIR)
 	@for top in $(FRONTEND_TOPS); do \
-		src=$$(find rtl/frontend -name "$$top.sv" -print -quit); \
-		$(SV2V) --write="$(BUILD_DIR)/$$top-yosys.v" "$$src" || exit 1; \
+		$(SV2V) --write="$(BUILD_DIR)/$$top-yosys.v" $(FRONTEND_RTL_FILES) || exit 1; \
 		$(YOSYS) -q -e '.*' \
 			-p "read_verilog $(BUILD_DIR)/$$top-yosys.v; hierarchy -check -top $$top; proc; opt; check; stat" \
 			-l "$(BUILD_DIR)/$$top-synth.log" || exit 1; \

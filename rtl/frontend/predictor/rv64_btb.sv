@@ -23,11 +23,11 @@ module rv64_btb #(
   input  logic [TARGET_KIND_W-1:0]   update_kind,
   input  logic                       flush_valid
 );
-  logic [TAG_W-1:0] tag_q [0:SETS-1][0:WAYS-1];
-  logic [ADDR_W-1:0] target_q [0:SETS-1][0:WAYS-1];
-  logic [TARGET_KIND_W-1:0] kind_q [0:SETS-1][0:WAYS-1];
-  logic valid_q [0:SETS-1][0:WAYS-1];
-  logic [WAY_W-1:0] repl_q [0:SETS-1];
+  logic [SETS*WAYS*TAG_W-1:0] tag_q;
+  logic [SETS*WAYS*ADDR_W-1:0] target_q;
+  logic [SETS*WAYS*TARGET_KIND_W-1:0] kind_q;
+  logic [SETS*WAYS-1:0] valid_q;
+  logic [SETS*WAY_W-1:0] repl_q;
   logic [INDEX_W-1:0] lookup_index;
   logic [INDEX_W-1:0] update_index;
   logic [TAG_W-1:0] lookup_tag;
@@ -35,8 +35,6 @@ module rv64_btb #(
   logic [WAY_W-1:0] update_way;
   logic update_hit;
   logic invalid_way_found;
-  integer set_i;
-  integer way_i;
 
   initial begin
     assert (SETS >= 2);
@@ -59,19 +57,26 @@ module rv64_btb #(
     lookup_target = '0;
     lookup_kind = '0;
     update_hit = 1'b0;
-    update_way = repl_q[update_index];
+    update_way = repl_q[(update_index * WAY_W) +: WAY_W];
     invalid_way_found = 1'b0;
     for (int unsigned way = 0; way < WAYS; way = way + 1) begin
-      if (valid_q[lookup_index][way] && (tag_q[lookup_index][way] == lookup_tag) && !lookup_hit) begin
+      if (valid_q[lookup_index * WAYS + way] &&
+          (tag_q[((lookup_index * WAYS + way) * TAG_W) +: TAG_W] == lookup_tag) &&
+          !lookup_hit) begin
         lookup_hit = 1'b1;
-        lookup_target = target_q[lookup_index][way];
-        lookup_kind = kind_q[lookup_index][way];
+        lookup_target =
+          target_q[((lookup_index * WAYS + way) * ADDR_W) +: ADDR_W];
+        lookup_kind =
+          kind_q[((lookup_index * WAYS + way) * TARGET_KIND_W) +: TARGET_KIND_W];
       end
-      if (valid_q[update_index][way] && (tag_q[update_index][way] == update_tag) && !update_hit) begin
+      if (valid_q[update_index * WAYS + way] &&
+          (tag_q[((update_index * WAYS + way) * TAG_W) +: TAG_W] == update_tag) &&
+          !update_hit) begin
         update_hit = 1'b1;
         update_way = WAY_W'(way);
       end
-      if (!valid_q[update_index][way] && !invalid_way_found && !update_hit) begin
+      if (!valid_q[update_index * WAYS + way] &&
+          !invalid_way_found && !update_hit) begin
         invalid_way_found = 1'b1;
         update_way = WAY_W'(way);
       end
@@ -80,28 +85,26 @@ module rv64_btb #(
 
   always_ff @(posedge clk or negedge rst_ni) begin
     if (!rst_ni) begin
-      for (set_i = 0; set_i < SETS; set_i = set_i + 1) begin
-        repl_q[set_i] <= '0;
-        for (way_i = 0; way_i < WAYS; way_i = way_i + 1) begin
-          valid_q[set_i][way_i] <= 1'b0;
-          tag_q[set_i][way_i] <= '0;
-          target_q[set_i][way_i] <= '0;
-          kind_q[set_i][way_i] <= '0;
-        end
-      end
+      repl_q <= '0;
+      valid_q <= '0;
+      tag_q <= '0;
+      target_q <= '0;
+      kind_q <= '0;
     end else if (flush_valid) begin
-      for (set_i = 0; set_i < SETS; set_i = set_i + 1) begin
-        repl_q[set_i] <= '0;
-        for (way_i = 0; way_i < WAYS; way_i = way_i + 1) begin
-          valid_q[set_i][way_i] <= 1'b0;
-        end
-      end
+      repl_q <= '0;
+      valid_q <= '0;
     end else if (update_valid) begin
-      valid_q[update_index][update_way] <= 1'b1;
-      tag_q[update_index][update_way] <= update_tag;
-      target_q[update_index][update_way] <= update_target;
-      kind_q[update_index][update_way] <= update_kind;
-      repl_q[update_index] <= update_way + WAY_W'(1);
+      valid_q[int'(update_index) * WAYS + int'(update_way)] <= 1'b1;
+      tag_q[(((int'(update_index) * WAYS) + int'(update_way)) * TAG_W)
+            +: TAG_W] <=
+        update_tag;
+      target_q[(((int'(update_index) * WAYS) + int'(update_way)) * ADDR_W)
+               +: ADDR_W] <=
+        update_target;
+      kind_q[(((int'(update_index) * WAYS) + int'(update_way)) * TARGET_KIND_W)
+             +: TARGET_KIND_W] <= update_kind;
+      repl_q[(int'(update_index) * WAY_W) +: WAY_W] <=
+        update_way + WAY_W'(1);
     end
   end
 

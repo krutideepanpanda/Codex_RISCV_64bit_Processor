@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-006` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-007` is `emergency` in phase `foundation`.
 
-Completed: Fresh-context recovery drill reconstructed foundation-recovery-005 using repository state only and passed 65,735 checks; checksummed record and smoke log are now validated and durable.
+Completed: Implemented and independently reviewed two-wide speculative history, TAGE-lite direction prediction, and indirect-target prediction; all frontend blocks lint and synthesize warning-clean; 65,777-check smoke passes; CI now preserves the generated Nix lock.
 
 Next actions:
 
-1. Authorize creation of /nix for the pinned single-user Nix installation.
-2. Install pinned Nix, generate flake.lock, and pass nix flake check.
-3. Seal accepted checkpoint foundation-001, then begin the remaining v0.1 frontend fetch/predictor/recovery work.
+1. Push foundation-recovery-007 and inspect the corrected pinned Nix CI run.
+2. Download, verify, and commit the exact CI-generated flake.lock artifact.
+3. Pass clean-checkout Nix smoke and seal accepted checkpoint foundation-001 before continuing v0.1 fetch integration.
 
 Resume steps:
 

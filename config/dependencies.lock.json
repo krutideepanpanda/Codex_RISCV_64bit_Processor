@@ -30,6 +30,10 @@
       "version": "v4.2.2",
       "revision": "11bd71901bbe5b1630ceea73d27597364c9af683"
     },
+    "actions/upload-artifact": {
+      "version": "v4.6.2",
+      "revision": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+    },
     "nixpkgs": {
       "revision": "805a384895c696f802a9bf5bf4720f37385df547",
       "nar_hash": "sha256-F/TKWETwB5RaR8owkPPi+SPJh83AQsm6KrQAlJ8v/uA="

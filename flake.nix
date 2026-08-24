@@ -17,6 +17,12 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      edaPkgs = openlane.legacyPackages.${system};
+      sv2vPackage = pkgs.haskellPackages.callCabal2nix "sv2v"
+        (pkgs.fetchurl {
+          url = "https://github.com/zachjs/sv2v/archive/refs/tags/v0.0.13.tar.gz";
+          hash = "sha256-7Gcj8wwXmLH7u+2XNk8JxDH7SHVXfDFPNyQOmbYKSgQ=";
+        }) {};
     in {
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
@@ -28,10 +34,10 @@
           gnumake
           python3
           python3Packages.pyyaml
-          sv2v
-          symbiyosys
-          verilator
-          yosys
+          sv2vPackage
+          edaPkgs.verilator
+          edaPkgs.yosys
+          edaPkgs.yosys-sby
           z3
         ];
         SOURCE_DATE_EPOCH = "1787529600";
@@ -43,7 +49,8 @@
 
       checks.${system}.smoke = pkgs.runCommand "codex-rv64-smoke" {
         nativeBuildInputs = with pkgs; [
-          bash gcc gnumake python3 python3Packages.pyyaml sv2v verilator yosys
+          bash gcc gnumake python3 python3Packages.pyyaml sv2vPackage
+          edaPkgs.verilator edaPkgs.yosys
         ];
         src = self;
       } ''

@@ -9,12 +9,15 @@ RTL_PACKAGE_FILES := $(shell find rtl/pkg -type f \( -name '*.sv' -o -name '*.v'
 RTL_DESIGN_FILES := $(shell find rtl -path rtl/pkg -prune -o -type f \( -name '*.sv' -o -name '*.v' \) -print | sort)
 RTL_FILES := $(RTL_PACKAGE_FILES) $(RTL_DESIGN_FILES)
 SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
+FRONTEND_TOPS := rv64c_decompress rv64_ras rv64_btb rv64_spec_history \
+	rv64_tage_lite rv64_indirect_predictor
 
-.PHONY: help validate udb-profile lint unit frontend-unit test synth smoke smoke-components recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help validate udb-profile lint frontend-lint unit frontend-unit test synth frontend-synth smoke smoke-components recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
 	@echo "  lint   - lint all SystemVerilog with Verilator"
+	@echo "  frontend-synth - warning-clean generic synthesis for every frontend block"
 	@echo "  validate - validate control files, agent config, skills, and dependency locks"
 	@echo "  udb-profile - regenerate the normative profile from pinned ACT data"
 	@echo "  unit   - compile and run fast RTL unit tests"
@@ -43,18 +46,31 @@ lint:
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module rv64_alu $(RTL_FILES)
 
+frontend-lint:
+	@for top in $(FRONTEND_TOPS); do \
+		src=$$(find rtl/frontend -name "$$top.sv" -print -quit); \
+		$(VERILATOR) --lint-only -Wall -Wno-DECLFILENAME \
+			-Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET "$$src" || exit 1; \
+	done
+
 unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
 	$(BUILD_DIR)/alu_unit
 	$(BUILD_DIR)/decoder_unit
 
-frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit
+frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit \
+	$(BUILD_DIR)/spec_history_unit $(BUILD_DIR)/tage_lite_unit \
+	$(BUILD_DIR)/indirect_predictor_unit
 	$(BUILD_DIR)/decompress_unit
 	$(BUILD_DIR)/ras_unit
 	$(BUILD_DIR)/btb_unit
+	$(BUILD_DIR)/spec_history_unit
+	$(BUILD_DIR)/tage_lite_unit
+	$(BUILD_DIR)/indirect_predictor_unit
 
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
 	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module alu_tb -Mdir $(BUILD_DIR)/obj_alu \
 		-o ../alu_unit $(RTL_FILES) tests/unit/alu_tb.sv
 
@@ -86,7 +102,27 @@ $(BUILD_DIR)/btb_unit: $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 		--top-module btb_tb -Mdir $(BUILD_DIR)/obj_btb \
 		-o ../btb_unit $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 
-test: validate lint unit
+$(BUILD_DIR)/spec_history_unit: rtl/frontend/predictor/rv64_spec_history.sv tests/frontend/predictor/spec_history_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		--top-module spec_history_tb -Mdir $(BUILD_DIR)/obj_spec_history \
+		-o ../spec_history_unit $^
+
+$(BUILD_DIR)/tage_lite_unit: rtl/frontend/predictor/rv64_tage_lite.sv tests/frontend/predictor/tage_lite_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDSIGNAL -Wno-BLKSEQ -Wno-SYNCASYNCNET \
+		--top-module tage_lite_tb -Mdir $(BUILD_DIR)/obj_tage_lite \
+		-o ../tage_lite_unit $^
+
+$(BUILD_DIR)/indirect_predictor_unit: rtl/frontend/predictor/rv64_indirect_predictor.sv tests/frontend/predictor/indirect_predictor_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDSIGNAL -Wno-BLKSEQ \
+		--top-module indirect_predictor_tb -Mdir $(BUILD_DIR)/obj_indirect_predictor \
+		-o ../indirect_predictor_unit $^
+
+test: validate lint frontend-lint unit
 
 synth:
 	mkdir -p $(BUILD_DIR)
@@ -94,10 +130,20 @@ synth:
 	$(YOSYS) -q -e '.*' -p 'read_verilog $(BUILD_DIR)/rtl-yosys.v; hierarchy -check -top rv64_alu; proc; opt; check; stat' \
 		-l $(BUILD_DIR)/synth.log
 
+frontend-synth:
+	mkdir -p $(BUILD_DIR)
+	@for top in $(FRONTEND_TOPS); do \
+		src=$$(find rtl/frontend -name "$$top.sv" -print -quit); \
+		$(SV2V) --write="$(BUILD_DIR)/$$top-yosys.v" "$$src" || exit 1; \
+		$(YOSYS) -q -e '.*' \
+			-p "read_verilog $(BUILD_DIR)/$$top-yosys.v; hierarchy -check -top $$top; proc; opt; check; stat" \
+			-l "$(BUILD_DIR)/$$top-synth.log" || exit 1; \
+	done
+
 smoke:
 	./scripts/run-smoke.sh
 
-smoke-components: test synth
+smoke-components: test synth frontend-synth
 
 recovery-inspect:
 	python3 scripts/continuity.py inspect

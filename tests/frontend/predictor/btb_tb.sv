@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 module btb_tb;
-  logic clk = 1'b0;
-  logic rst_ni = 1'b0;
+  logic clk;
+  logic rst_ni;
   logic [63:0] lookup_pc, lookup_target, update_pc, update_target;
   logic [1:0] lookup_kind, update_kind;
   logic lookup_hit, update_valid, flush_valid;
-  int unsigned checks = 0;
+  int unsigned checks;
 
   rv64_btb #(.SETS(4), .WAYS(2)) dut (.*);
   always #5 clk = ~clk;
@@ -23,6 +23,9 @@ module btb_tb;
   endtask
 
   initial begin
+    clk = 1'b0;
+    rst_ni = 1'b0;
+    checks = 0;
     lookup_pc = '0; update_valid = 0; update_pc = '0; update_target = '0;
     update_kind = '0; flush_valid = 0;
     repeat (2) @(posedge clk);

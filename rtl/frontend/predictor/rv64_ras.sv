@@ -27,10 +27,11 @@ module rv64_ras #(
   input  logic [SNAPSHOT_W-1:0]        recover_entries,
   input  logic                         flush_valid
 );
-  logic [ADDR_W-1:0] stack_q [0:DEPTH-1];
+  // Packed storage keeps generic synthesis deterministic; entries are sliced
+  // explicitly and remain checkpoint-compatible.
+  logic [SNAPSHOT_W-1:0] stack_q;
   logic [SP_W-1:0]   sp_q;
   logic [COUNT_W-1:0] count_q;
-  integer i;
 
   initial begin
     assert (DEPTH >= 2);
@@ -45,35 +46,29 @@ module rv64_ras #(
     top_valid = (count_q != '0);
     top_addr = '0;
     if (top_valid) begin
-      top_addr = stack_q[sp_q - SP_W'(1)];
+      top_addr = stack_q[((int'(sp_q) - 1) * ADDR_W) +: ADDR_W];
     end
     checkpoint_sp_o = sp_q;
     checkpoint_count_o = count_q;
-    for (int unsigned entry = 0; entry < DEPTH; entry = entry + 1) begin
-      checkpoint_entries_o[entry*ADDR_W +: ADDR_W] = stack_q[entry];
-    end
+    checkpoint_entries_o = stack_q;
   end
 
   always_ff @(posedge clk or negedge rst_ni) begin
     if (!rst_ni) begin
       sp_q <= '0;
       count_q <= '0;
-      for (i = 0; i < DEPTH; i = i + 1) begin
-        stack_q[i] <= '0;
-      end
+      stack_q <= '0;
     end else if (flush_valid) begin
       sp_q <= '0;
       count_q <= '0;
     end else if (recover_valid) begin
       sp_q <= recover_sp;
       count_q <= recover_count;
-      for (i = 0; i < DEPTH; i = i + 1) begin
-        stack_q[i] <= recover_entries[i*ADDR_W +: ADDR_W];
-      end
+      stack_q <= recover_entries;
     end else begin
       unique case ({push_valid, pop_valid})
         2'b10: if (count_q != COUNT_W'(DEPTH)) begin
-          stack_q[sp_q] <= push_addr;
+          stack_q[(int'(sp_q) * ADDR_W) +: ADDR_W] <= push_addr;
           sp_q <= sp_q + SP_W'(1);
           count_q <= count_q + COUNT_W'(1);
         end
@@ -82,11 +77,11 @@ module rv64_ras #(
           count_q <= count_q - COUNT_W'(1);
         end
         2'b11: if (count_q == '0) begin
-          stack_q[sp_q] <= push_addr;
+          stack_q[(int'(sp_q) * ADDR_W) +: ADDR_W] <= push_addr;
           sp_q <= sp_q + SP_W'(1);
           count_q <= COUNT_W'(1);
         end else begin
-          stack_q[sp_q - SP_W'(1)] <= push_addr;
+          stack_q[((int'(sp_q) - 1) * ADDR_W) +: ADDR_W] <= push_addr;
         end
         default: begin end
       endcase

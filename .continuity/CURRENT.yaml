@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-014",
+  "checkpoint_id": "foundation-recovery-015",
   "checkpoint_ref": null,
   "mode": "emergency",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-014",
+  "work_packet": "foundation-recovery-015",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Passed the upstream Verilator 5.018 coroutine flag explicitly to every timing-enabled harness build; local timing-unit compilation and execution pass."
+    "Enabled C++20 together with coroutine support for every timing-enabled Verilator harness; local clean harness build and execution pass."
   ],
   "next_actions": [
-    "Push foundation-recovery-014 and inspect the pinned Nix/OpenLane smoke run.",
+    "Push foundation-recovery-015 and inspect the pinned Nix/OpenLane smoke run.",
     "Record passing CI evidence or fix any remaining closure-specific issue.",
     "Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration."
   ],

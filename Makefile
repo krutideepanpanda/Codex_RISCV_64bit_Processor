@@ -69,55 +69,55 @@ frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/b
 
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module alu_tb -Mdir $(BUILD_DIR)/obj_alu \
 		-o ../alu_unit $(RTL_FILES) tests/unit/alu_tb.sv
 
 $(BUILD_DIR)/decoder_unit: $(RTL_FILES) tests/unit/decoder_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module decoder_tb -Mdir $(BUILD_DIR)/obj_decoder \
 		-o ../decoder_unit $(RTL_FILES) tests/unit/decoder_tb.sv
 
 $(BUILD_DIR)/decompress_unit: $(RTL_FILES) tests/frontend/decompress/rv64c_decompress_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
 		--top-module rv64c_decompress_tb -Mdir $(BUILD_DIR)/obj_decompress \
 		-o ../decompress_unit $(RTL_FILES) tests/frontend/decompress/rv64c_decompress_tb.sv
 
 $(BUILD_DIR)/ras_unit: $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
 		--top-module ras_tb -Mdir $(BUILD_DIR)/obj_ras \
 		-o ../ras_unit $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
 
 $(BUILD_DIR)/btb_unit: $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
 		--top-module btb_tb -Mdir $(BUILD_DIR)/obj_btb \
 		-o ../btb_unit $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 
 $(BUILD_DIR)/spec_history_unit: rtl/frontend/predictor/rv64_spec_history.sv tests/frontend/predictor/spec_history_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		--top-module spec_history_tb -Mdir $(BUILD_DIR)/obj_spec_history \
 		-o ../spec_history_unit $^
 
 $(BUILD_DIR)/tage_lite_unit: rtl/frontend/predictor/rv64_tage_lite.sv tests/frontend/predictor/tage_lite_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDSIGNAL -Wno-BLKSEQ -Wno-SYNCASYNCNET \
 		--top-module tage_lite_tb -Mdir $(BUILD_DIR)/obj_tage_lite \
 		-o ../tage_lite_unit $^
 
 $(BUILD_DIR)/indirect_predictor_unit: rtl/frontend/predictor/rv64_indirect_predictor.sv tests/frontend/predictor/indirect_predictor_tb.sv
 	mkdir -p $(BUILD_DIR)
-	$(VERILATOR) --binary --assert --timing -CFLAGS -fcoroutines -Wall -Wno-fatal -Wno-DECLFILENAME \
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDSIGNAL -Wno-BLKSEQ \
 		--top-module indirect_predictor_tb -Mdir $(BUILD_DIR)/obj_indirect_predictor \
 		-o ../indirect_predictor_unit $^

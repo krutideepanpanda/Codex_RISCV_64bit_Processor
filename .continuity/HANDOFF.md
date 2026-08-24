@@ -1,12 +1,12 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-014` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-015` is `emergency` in phase `foundation`.
 
-Completed: Passed the upstream Verilator 5.018 coroutine flag explicitly to every timing-enabled harness build; local timing-unit compilation and execution pass.
+Completed: Enabled C++20 together with coroutine support for every timing-enabled Verilator harness; local clean harness build and execution pass.
 
 Next actions:
 
-1. Push foundation-recovery-014 and inspect the pinned Nix/OpenLane smoke run.
+1. Push foundation-recovery-015 and inspect the pinned Nix/OpenLane smoke run.
 2. Record passing CI evidence or fix any remaining closure-specific issue.
 3. Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration.
 

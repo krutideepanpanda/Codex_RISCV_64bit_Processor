@@ -91,14 +91,14 @@ $(BUILD_DIR)/decompress_unit: $(RTL_FILES) tests/frontend/decompress/rv64c_decom
 $(BUILD_DIR)/ras_unit: $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
 	mkdir -p $(BUILD_DIR)
 	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
-		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET \
 		--top-module ras_tb -Mdir $(BUILD_DIR)/obj_ras \
 		-o ../ras_unit $(RTL_FILES) tests/frontend/predictor/ras_tb.sv
 
 $(BUILD_DIR)/btb_unit: $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 	mkdir -p $(BUILD_DIR)
 	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
-		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET \
 		--top-module btb_tb -Mdir $(BUILD_DIR)/obj_btb \
 		-o ../btb_unit $(RTL_FILES) tests/frontend/predictor/btb_tb.sv
 

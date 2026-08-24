@@ -1,12 +1,12 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-015` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-016` is `emergency` in phase `foundation`.
 
-Completed: Enabled C++20 together with coroutine support for every timing-enabled Verilator harness; local clean harness build and execution pass.
+Completed: Removed the non-portable PROCASSINIT warning suppression rejected by pinned Verilator 5.018; RAS and BTB tests, frontend lint, and validation pass.
 
 Next actions:
 
-1. Push foundation-recovery-015 and inspect the pinned Nix/OpenLane smoke run.
+1. Push foundation-recovery-016 and inspect the pinned Nix/OpenLane smoke run.
 2. Record passing CI evidence or fix any remaining closure-specific issue.
 3. Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration.
 

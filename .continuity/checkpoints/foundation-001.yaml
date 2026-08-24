@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "foundation-001",
+  "mode": "accepted",
+  "phase": "foundation",
+  "summary": "Accepted the durable foundation: audited draft, pinned dependencies and Nix/OpenLane closure, public GitHub repository, continuity recovery drill, multi-agent/skill controls, passing local and CI locked smoke evidence, and Bazzite-safe digest-pinned tooling.",
+  "next_actions": [
+    "Start v0.1.0 fetch integration by auditing the frozen frontend interfaces and assigning disjoint fetch and predictor work packets.",
+    "Implement bounded fetch and predictor integration with assertions and self-checking unit tests.",
+    "Require independent verification review before the v0.1 frontend checkpoint."
+  ],
+  "dependency_lock_sha256": "c748424dd1458dc010da8072354af230c21914d809077368606bd16af642bed6",
+  "pre_checkpoint_changes": [
+    "M  .continuity/CURRENT.yaml",
+    "A  .continuity/local/foundation-nix-container-smoke.json",
+    "M  Makefile",
+    "M  README.md",
+    "M  config/dependencies.lock.json",
+    "M  scripts/bootstrap-tools.sh",
+    "A  scripts/nix-container.sh",
+    "M  scripts/run-gds.sh",
+    "M  scripts/validate-project.py"
+  ],
+  "tests": {
+    "make smoke": {
+      "status": "pass",
+      "log": ".continuity/checkpoints/foundation-001.smoke.log",
+      "sha256": "78883e8281dab5e80d0b7498d3dfc22d75f90a2e4f9171a5dcaa156e3e6f6769"
+    },
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    },
+    "pinned Nix CI smoke": {
+      "status": "pass",
+      "record": ".continuity/ci/foundation-nix-smoke-32704545610.json",
+      "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
+      "total_unit_checks": 65779
+    },
+    "pinned Nix local container smoke": {
+      "status": "pass",
+      "record": ".continuity/local/foundation-nix-container-smoke.json",
+      "sha256": "8b77986fccbfab5b133385219d5539d6a509efb8fbe4ba1eab4c0f62d1d10938",
+      "total_unit_checks": 65779,
+      "independent_review": "ready"
+    }
+  },
+  "smoke_log": {
+    "path": ".continuity/checkpoints/foundation-001.smoke.log",
+    "sha256": "78883e8281dab5e80d0b7498d3dfc22d75f90a2e4f9171a5dcaa156e3e6f6769"
+  }
+}

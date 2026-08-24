@@ -41,14 +41,22 @@ make unit          # fast unit tests
 make test          # lint and unit tests
 make synth         # generic Yosys synthesis check
 make smoke         # foundation lint, unit, and synthesis regression
+make nix-pull      # fetch the digest-pinned official Nix container
+make nix-smoke     # run the exact locked flake check on immutable Bazzite
+make nix-shell     # open the locked containerized development shell
 make resume-check  # validate checkpoint state after interruption
 make gds           # local pinned OpenLane/OpenRAM signoff flow (v1 release gate)
 make help
 ```
 
-The local `openlane` command currently installed on the development machine is
-incomplete. `scripts/bootstrap-tools.sh` will provision pinned project-local
-tooling rather than depend on that launcher.
+The Bazzite host has a read-only `composefs` root, so it cannot create the
+standard `/nix` store. The repository therefore runs official Nix 2.35.2 in a
+rootless Podman image pinned by linux/amd64 digest. `scripts/bootstrap-tools.sh`
+always uses this immutable-host path so an arbitrary native Nix cannot bypass
+the recorded environment. A named rootless volume caches the Nix store; source
+and lock files remain authoritative in Git. `make gds` uses the same container
+when physical configuration is enabled. The host's unrelated `openlane`
+launcher is never used.
 
 See [docs/architecture.md](docs/architecture.md),
 [docs/architectural-parameters.md](docs/architectural-parameters.md),

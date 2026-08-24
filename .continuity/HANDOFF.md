@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-017` is `emergency` in phase `foundation`.
+Checkpoint `foundation-001` is `accepted` in phase `foundation`.
 
-Completed: Recorded passing pinned Nix CI run 32704545610 with 65,779 unit checks, lint, validation, and synthesis smoke; added checksummed CI evidence validation and cleared the CI blocker.
+Completed: Accepted the durable foundation: audited draft, pinned dependencies and Nix/OpenLane closure, public GitHub repository, continuity recovery drill, multi-agent/skill controls, passing local and CI locked smoke evidence, and Bazzite-safe digest-pinned tooling.
 
 Next actions:
 
-1. Install the pinned Nix environment on the local Bazzite host and run make smoke inside it.
-2. Seal accepted checkpoint foundation-001 after local locked-environment validation passes.
-3. Continue v0.1 fetch integration from the accepted foundation boundary.
+1. Start v0.1.0 fetch integration by auditing the frozen frontend interfaces and assigning disjoint fetch and predictor work packets.
+2. Implement bounded fetch and predictor integration with assertions and self-checking unit tests.
+3. Require independent verification review before the v0.1 frontend checkpoint.
 
 Resume steps:
 

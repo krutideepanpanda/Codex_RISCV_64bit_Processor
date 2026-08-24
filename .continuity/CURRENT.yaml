@@ -1,26 +1,28 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "foundation-recovery-017",
-  "checkpoint_ref": null,
-  "mode": "emergency",
+  "checkpoint_id": "foundation-001",
+  "checkpoint_ref": "checkpoint/foundation-001",
+  "mode": "accepted",
   "phase": "foundation",
-  "work_packet": "foundation-recovery-017",
+  "work_packet": "foundation-001",
   "owners": [
     "architect_integrator"
   ],
   "completed": [
-    "Recorded passing pinned Nix CI run 32704545610 with 65,779 unit checks, lint, validation, and synthesis smoke; added checksummed CI evidence validation and cleared the CI blocker."
+    "Accepted the durable foundation: audited draft, pinned dependencies and Nix/OpenLane closure, public GitHub repository, continuity recovery drill, multi-agent/skill controls, passing local and CI locked smoke evidence, and Bazzite-safe digest-pinned tooling."
   ],
   "next_actions": [
-    "Install the pinned Nix environment on the local Bazzite host and run make smoke inside it.",
-    "Seal accepted checkpoint foundation-001 after local locked-environment validation passes.",
-    "Continue v0.1 fetch integration from the accepted foundation boundary."
+    "Start v0.1.0 fetch integration by auditing the frozen frontend interfaces and assigning disjoint fetch and predictor work packets.",
+    "Implement bounded fetch and predictor integration with assertions and self-checking unit tests.",
+    "Require independent verification review before the v0.1 frontend checkpoint."
   ],
-  "blockers": [
-    "Nix is not installed on the local Bazzite host"
-  ],
+  "blockers": [],
   "tests": {
-    "make smoke": "not-run (emergency)",
+    "make smoke": {
+      "status": "pass",
+      "log": ".continuity/checkpoints/foundation-001.smoke.log",
+      "sha256": "78883e8281dab5e80d0b7498d3dfc22d75f90a2e4f9171a5dcaa156e3e6f6769"
+    },
     "fresh-task recovery smoke": {
       "status": "pass",
       "record": ".continuity/recovery-drills/fresh-task-001.json",
@@ -31,11 +33,18 @@
       "record": ".continuity/ci/foundation-nix-smoke-32704545610.json",
       "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
       "total_unit_checks": 65779
+    },
+    "pinned Nix local container smoke": {
+      "status": "pass",
+      "record": ".continuity/local/foundation-nix-container-smoke.json",
+      "sha256": "8b77986fccbfab5b133385219d5539d6a509efb8fbe4ba1eab4c0f62d1d10938",
+      "total_unit_checks": 65779,
+      "independent_review": "ready"
     }
   },
   "seeds": [],
   "waivers": [],
-  "tool_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
+  "tool_lock_sha256": "c748424dd1458dc010da8072354af230c21914d809077368606bd16af642bed6",
   "runs": [
     {
       "id": "fresh-task-001",
@@ -48,6 +57,18 @@
       "status": "pass",
       "record": ".continuity/ci/foundation-nix-smoke-32704545610.json",
       "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10"
+    },
+    {
+      "id": "foundation-nix-container-smoke",
+      "status": "pass",
+      "record": ".continuity/local/foundation-nix-container-smoke.json",
+      "sha256": "8b77986fccbfab5b133385219d5539d6a509efb8fbe4ba1eab4c0f62d1d10938"
+    },
+    {
+      "id": "foundation-001-smoke",
+      "status": "pass",
+      "log": ".continuity/checkpoints/foundation-001.smoke.log",
+      "sha256": "78883e8281dab5e80d0b7498d3dfc22d75f90a2e4f9171a5dcaa156e3e6f6769"
     }
   ],
   "artifacts": [
@@ -60,6 +81,11 @@
       "path": ".continuity/ci/foundation-nix-smoke-32704545610.json",
       "sha256": "a21b044be60ae3d3754259b2a4c5bb7a10a95d2f43afdec1e6b78858b8d7cd10",
       "source": "GitHub Actions run 32704545610"
+    },
+    {
+      "path": ".continuity/local/foundation-nix-container-smoke.json",
+      "sha256": "8b77986fccbfab5b133385219d5539d6a509efb8fbe4ba1eab4c0f62d1d10938",
+      "source": "local rootless Podman run on immutable Bazzite"
     }
   ]
 }

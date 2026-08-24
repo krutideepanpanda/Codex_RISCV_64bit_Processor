@@ -7,7 +7,16 @@
       "installer_url": "https://nixos.org/nix/install",
       "installer_sha256": "9adda97297d9e8ab360df95c729eabff4f4f93d6db091953c3a68f29e3fb130c",
       "x86_64_linux_tarball_sha256": "0c3960a9792331a22081c3c7a5d8465db9b17c50b3acdf18587fa4c6f2cb1158",
-      "installation_mode": "single-user because the official multi-user installer rejects SELinux-enabled Bazzite"
+      "ci_installation_mode": "multi-user on the mutable Ubuntu GitHub runner",
+      "bazzite_installation_mode": "rootless Podman because the immutable composefs root cannot create /nix",
+      "container": {
+        "runtime": "podman",
+        "image": "docker.io/nixos/nix",
+        "tag": "2.35.2",
+        "platform": "linux/amd64",
+        "platform_digest": "sha256:617d914dba5384bf75adf17081583b69371031ec7defce36c34c5fa14fc819b0",
+        "manifest_list_digest": "sha256:7a007c766426c1877758ddc5cb87a965ac131fc78c582ce0083d922d51ae945c"
+      }
     }
   },
   "local_tools": {

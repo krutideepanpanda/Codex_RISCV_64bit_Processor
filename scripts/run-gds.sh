@@ -10,16 +10,12 @@ if [[ ! -f "$repo_root/config/openlane/config.json" ]]; then
   exit 2
 fi
 
-if ! command -v nix >/dev/null 2>&1; then
-  nix_profile="${HOME}/.nix-profile/etc/profile.d/nix.sh"
-  if [[ -r "$nix_profile" ]]; then
-    # shellcheck disable=SC1090
-    source "$nix_profile"
-  fi
+if [[ ${CODEX_RV64_PINNED_NIX:-0} != 1 ]]; then
+  exec "$repo_root/scripts/nix-container.sh" gds
 fi
 
 if ! command -v nix >/dev/null 2>&1; then
-  echo "Nix is not available. Run scripts/bootstrap-tools.sh first." >&2
+  echo "Pinned Nix container marker is set but nix is unavailable." >&2
   exit 2
 fi
 
@@ -29,6 +25,7 @@ mkdir -p "$(dirname "$marker")"
 trap 'unlink "$marker" 2>/dev/null || true' EXIT INT TERM
 
 nix --extra-experimental-features "nix-command flakes" develop \
-  "$repo_root#default" --command \
+  --no-update-lock-file --accept-flake-config "$repo_root#default" --command \
   nix --extra-experimental-features "nix-command flakes" run \
+  --no-update-lock-file --accept-flake-config \
   "$repo_root#openlane" -- "$repo_root/config/openlane/config.json"

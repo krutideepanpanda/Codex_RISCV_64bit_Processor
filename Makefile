@@ -12,7 +12,7 @@ SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
 FRONTEND_TOPS := rv64c_decompress rv64_ras rv64_btb rv64_spec_history \
 	rv64_tage_lite rv64_indirect_predictor
 
-.PHONY: help validate udb-profile lint frontend-lint unit frontend-unit test synth frontend-synth smoke smoke-components recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
+.PHONY: help validate udb-profile lint frontend-lint unit frontend-unit test synth frontend-synth smoke smoke-components nix-pull nix-smoke nix-shell recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
 
 help:
 	@echo "Codex RV64 processor targets"
@@ -25,6 +25,9 @@ help:
 	@echo "  test   - run lint and unit targets"
 	@echo "  synth  - synthesize the current implementation top with Yosys"
 	@echo "  smoke  - run foundation lint, unit, and synthesis checks"
+	@echo "  nix-pull  - fetch the immutable Bazzite Nix container image"
+	@echo "  nix-smoke - run the exact locked flake check in the pinned Nix container"
+	@echo "  nix-shell - open the locked development shell in the pinned Nix container"
 	@echo "  recovery-inspect - inspect interrupted state without mutation"
 	@echo "  recovery-drill   - record a checksummed clean-tree recovery smoke run"
 	@echo "  checkpoint-check - validate durable project state"
@@ -144,6 +147,15 @@ smoke:
 	./scripts/run-smoke.sh
 
 smoke-components: test synth frontend-synth
+
+nix-pull:
+	./scripts/nix-container.sh pull
+
+nix-smoke:
+	./scripts/nix-container.sh check
+
+nix-shell:
+	./scripts/nix-container.sh shell
 
 recovery-inspect:
 	python3 scripts/continuity.py inspect

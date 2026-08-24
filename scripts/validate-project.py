@@ -67,6 +67,7 @@ def validate_json_control_files() -> None:
     ]
     paths.extend(sorted((ROOT / ".continuity" / "checkpoints").glob("*.yaml")))
     paths.extend(sorted((ROOT / ".continuity" / "ci").glob("*.json")))
+    paths.extend(sorted((ROOT / ".continuity" / "local").glob("*.json")))
     paths.extend(sorted((ROOT / ".continuity" / "recovery-drills").glob("*.json")))
     for path in paths:
         value = load_json(path)
@@ -173,6 +174,29 @@ def validate_dependency_lock() -> None:
             or f'platforms = [ "{platform}" ];' not in package_body):
         raise ValidationError("flake.nix sv2v version/platform differs from dependency lock")
 
+    nix_container = dependency_lock.get("host_bootstrap", {}).get("nix", {}).get("container", {})
+    image = nix_container.get("image")
+    digest = nix_container.get("platform_digest")
+    platform = nix_container.get("platform")
+    if (image != "docker.io/nixos/nix" or platform != "linux/amd64"
+            or not isinstance(digest, str)
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest)):
+        raise ValidationError("host bootstrap requires a pinned linux/amd64 Nix container")
+    wrapper = (ROOT / "scripts" / "nix-container.sh").read_text(encoding="utf-8")
+    if f'readonly nix_image="{image}@{digest}"' not in wrapper:
+        raise ValidationError("Nix container wrapper differs from dependency lock")
+    bootstrap = (ROOT / "scripts" / "bootstrap-tools.sh").read_text(encoding="utf-8")
+    if ('exec "$repo_root/scripts/nix-container.sh" check' not in bootstrap
+            or "command -v nix" in bootstrap):
+        raise ValidationError("tool bootstrap can bypass the pinned Nix container")
+    gds_runner = (ROOT / "scripts" / "run-gds.sh").read_text(encoding="utf-8")
+    if ('CODEX_RV64_PINNED_NIX' not in gds_runner
+            or 'exec "$repo_root/scripts/nix-container.sh" gds' not in gds_runner
+            or gds_runner.count("--no-update-lock-file") != 2
+            or gds_runner.count("--accept-flake-config") != 2
+            or "nix_profile" in gds_runner):
+        raise ValidationError("GDS runner can bypass or mutate the pinned Nix environment")
+
 
 def validate_recovery_drills() -> None:
     state = load_json(ROOT / ".continuity" / "CURRENT.yaml")
@@ -223,6 +247,36 @@ def validate_ci_evidence() -> None:
             raise ValidationError(f"CURRENT.yaml does not reference CI evidence {record_id}")
         if run.get("sha256") != sha256(record_path):
             raise ValidationError(f"CURRENT.yaml has a stale CI evidence hash for {record_id}")
+
+
+def validate_local_evidence() -> None:
+    state = load_json(ROOT / ".continuity" / "CURRENT.yaml")
+    run_by_id = {
+        run.get("id"): run for run in state.get("runs", [])
+        if isinstance(run, dict) and isinstance(run.get("id"), str)
+    }
+    expected_digest = (
+        load_json(ROOT / "config" / "dependencies.lock.json")
+        .get("host_bootstrap", {}).get("nix", {}).get("container", {})
+        .get("platform_digest")
+    )
+    for record_path in sorted((ROOT / ".continuity" / "local").glob("*.json")):
+        record = load_json(record_path)
+        record_id = record.get("id")
+        if record.get("schema_version") != 1 or record.get("status") != "pass":
+            raise ValidationError(f"{record_path.relative_to(ROOT)} is not a passing v1 record")
+        if record_id != record_path.stem:
+            raise ValidationError(f"{record_path.relative_to(ROOT)} id does not match its filename")
+        if record.get("environment", {}).get("image") != f"docker.io/nixos/nix@{expected_digest}":
+            raise ValidationError(f"{record_path.relative_to(ROOT)} used the wrong Nix image")
+        if record.get("review", {}).get("status") != "ready":
+            raise ValidationError(f"{record_path.relative_to(ROOT)} lacks a READY review")
+        run = run_by_id.get(record_id)
+        relative = str(record_path.relative_to(ROOT))
+        if not run or run.get("status") != "pass" or run.get("record") != relative:
+            raise ValidationError(f"CURRENT.yaml does not reference local evidence {record_id}")
+        if run.get("sha256") != sha256(record_path):
+            raise ValidationError(f"CURRENT.yaml has a stale local evidence hash for {record_id}")
 
 
 def validate_toml() -> None:
@@ -315,6 +369,7 @@ def main() -> int:
         validate_udb_profile()
         validate_recovery_drills()
         validate_ci_evidence()
+        validate_local_evidence()
     except ValidationError as exc:
         print(f"project validation error: {exc}", file=sys.stderr)
         return 2

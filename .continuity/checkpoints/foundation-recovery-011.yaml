@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "foundation-recovery-011",
+  "mode": "emergency",
+  "phase": "foundation",
+  "summary": "Made the smoke flow hermetic by resolving Makefile Bash through PATH and patching repository script shebangs inside the Nix derivation; local 65,777-check smoke and synthesis pass.",
+  "next_actions": [
+    "Push foundation-recovery-011 and inspect the hermetic pinned Nix/OpenLane CI run.",
+    "Record passing CI evidence and update the foundation gate.",
+    "Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration."
+  ],
+  "dependency_lock_sha256": "46b946f3b5d9ced7ca9266f5d2c04fe33faa49ead0ee5c953e31e9096552fee1",
+  "pre_checkpoint_changes": [
+    " M Makefile",
+    " M flake.nix"
+  ],
+  "tests": {
+    "make smoke": "not-run (emergency)",
+    "fresh-task recovery smoke": {
+      "status": "pass",
+      "record": ".continuity/recovery-drills/fresh-task-001.json",
+      "sha256": "568cea53b382ef1b31999713d63751fb85942698c10d4c6657105a334ce3fe59"
+    }
+  },
+  "smoke_log": null
+}

@@ -76,6 +76,7 @@
         cp -R "$src" source
         chmod -R u+w source
         cd source
+        patchShebangs scripts
         make smoke BUILD_DIR="$TMPDIR/build"
         touch "$out"
       '';

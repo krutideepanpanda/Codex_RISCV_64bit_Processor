@@ -1,4 +1,4 @@
-SHELL := /usr/bin/env bash
+SHELL := bash
 .DEFAULT_GOAL := help
 
 BUILD_DIR ?= build

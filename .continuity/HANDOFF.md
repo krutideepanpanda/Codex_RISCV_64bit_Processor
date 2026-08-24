@@ -1,14 +1,14 @@
 # Current handoff
 
-Checkpoint `foundation-recovery-010` is `emergency` in phase `foundation`.
+Checkpoint `foundation-recovery-011` is `emergency` in phase `foundation`.
 
-Completed: Enabled the pinned OpenLane Cachix substituter and trusted key in the ephemeral Nix daemon before locked CI evaluation; independent review is READY.
+Completed: Made the smoke flow hermetic by resolving Makefile Bash through PATH and patching repository script shebangs inside the Nix derivation; local 65,777-check smoke and synthesis pass.
 
 Next actions:
 
-1. Push foundation-recovery-010 and inspect the cache-enabled pinned Nix/OpenLane CI run.
-2. Record passing CI evidence or diagnose the next exact closure failure.
-3. Seal accepted checkpoint foundation-001 after reproducible Nix smoke qualification, then continue v0.1 fetch integration.
+1. Push foundation-recovery-011 and inspect the hermetic pinned Nix/OpenLane CI run.
+2. Record passing CI evidence and update the foundation gate.
+3. Seal accepted checkpoint foundation-001, then continue v0.1 fetch integration.
 
 Resume steps:
 

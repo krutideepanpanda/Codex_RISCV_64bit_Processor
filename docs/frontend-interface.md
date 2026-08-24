@@ -24,6 +24,15 @@ that instruction are available. A fetch fault emits one attributable lane with
 zero instruction payload and terminates the packet. Missing bytes stall packet
 formation; they are not converted into illegal instructions.
 
+The aligner retains missing-byte semantics for unit-level composition, but the
+v0.1 controller response is a complete terminal window: on every accepted
+response, each of the 32 byte positions must be either valid or faulted. The
+instruction-memory/cache adapter must retain or refill partial beats before
+presenting `response_valid_i`. This guarantee prevents an immutable buffered
+window from deadlocking while preserving byte-attributable faults. A future
+partial-window protocol requires an explicit transaction/refill interface
+revision; the current controller does not infer or issue refills.
+
 Compressed encodings retain their original 16 bits, zero-extended in the raw
 instruction field. Illegal compressed encodings remain attributable valid lanes,
 set the illegal-compressed indication, and carry a zero decompressed instruction.
@@ -49,6 +58,28 @@ Prediction priority is direct JAL target, RAS return, confident indirect target,
 BTB target for a predicted-taken control transfer, then sequential PC. A taken
 lane 0 suppresses lane 1. Every emitted packet retains the TAGE, indirect,
 history, and full RAS metadata needed for exact recovery and later training.
+
+The v0.1 predictor primitives provide one BTB, indirect-predictor, and RAS
+operation per cycle. Consequently, a packet may contain at most one control
+transfer: any lane-0 control transfer suppresses lane 1, while lane 1 may be the
+sole control transfer when lane 0 is ordinary. Suppression is a structural
+throughput restriction, not an architectural drop; the younger PC is selected
+for a later fetch packet. Removing this restriction requires a reviewed
+multi-ported or replicated predictor interface revision.
+
+`rv64_fetch_predictor` is the frontend-owned composition boundary for the fetch
+controller, aligner, decompressor, BTB, TAGE-lite predictor, 32-entry indirect
+predictor, 16-entry RAS, and 64-bit speculative history. It preserves the
+controller request/response protocol and exposes a two-lane valid/ready packet.
+The controller window is accepted only with the packet, so instruction and
+prediction metadata remain stable together under downstream backpressure.
+
+Integration is accepted in two bounded packets. `frontend-001c-a` closes packet
+metadata, retirement-only BTB/TAGE training, backpressure stability, controller
+stale-response handling, and flush/redirect priority. `frontend-001c-b` then
+closes indirect-confidence training, destructive RAS snapshot recovery, and the
+dual-lane speculative-history reference model. Neither subpacket alone completes
+the v0.1 frontend milestone.
 
 Predictor tables train only from in-order retired control transfers. Fetch
 lookup and speculative history/RAS advancement never train a predictor table.

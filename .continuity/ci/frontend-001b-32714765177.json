@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001b-32714765177",
+  "provider": "github-actions",
+  "workflow": ".github/workflows/ci.yml",
+  "run_id": 32714765177,
+  "run_url": "https://github.com/krutideepanpanda/Codex_RISCV_64bit_Processor/actions/runs/32714765177",
+  "head_sha": "42be174fbb3e90523636f784dfdde5462e68af83",
+  "checkpoint": "checkpoint/frontend-001b",
+  "status": "pass",
+  "started_at": "2026-08-24T10:03:04Z",
+  "completed_at": "2026-08-24T10:06:08Z",
+  "job": {
+    "id": 97393554168,
+    "name": "Pinned lint, unit, and synthesis smoke",
+    "status": "pass",
+    "duration_seconds": 184
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "dependency_lock_sha256": "b73ff1d8370227279402899dbb186e92a206fea8b75aac7d76f15eba557cb687",
+    "lock_updates_allowed": false,
+    "openlane_cachix_enabled": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "lint": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 93085,
+      "decompressor_checks": 65584,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "fetch_align_checks": 26768,
+      "fetch_align_seed": "0x5eed1234",
+      "fetch_controller_checks": 538,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    },
+    "synthesis_smoke": "pass"
+  },
+  "non_gating_annotations": [
+    "GitHub forced Node.js 20 actions to Node.js 24; update checkout and artifact action pins in a later dependency-maintenance packet."
+  ]
+}

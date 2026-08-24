@@ -12,7 +12,7 @@ SYNTH_FILES := $(RTL_PACKAGE_FILES) rtl/core/rv64_alu.sv
 FRONTEND_RTL_FILES := $(shell find rtl/frontend -type f \( -name '*.sv' -o -name '*.v' \) | sort)
 FRONTEND_TOPS := rv64c_decompress rv64_ras rv64_btb rv64_spec_history \
 	rv64_tage_lite rv64_indirect_predictor rv64_fetch_align \
-	rv64_fetch_controller
+	rv64_fetch_controller rv64_fetch_predictor
 
 .PHONY: help validate udb-profile lint frontend-lint unit frontend-unit test synth frontend-synth smoke smoke-components nix-pull nix-smoke nix-shell recovery-inspect recovery-drill checkpoint checkpoint-check resume-check release-gate gds clean
 
@@ -65,7 +65,7 @@ unit: $(BUILD_DIR)/alu_unit $(BUILD_DIR)/decoder_unit frontend-unit
 frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/btb_unit \
 	$(BUILD_DIR)/spec_history_unit $(BUILD_DIR)/tage_lite_unit \
 	$(BUILD_DIR)/indirect_predictor_unit $(BUILD_DIR)/fetch_align_unit \
-	$(BUILD_DIR)/fetch_controller_unit
+	$(BUILD_DIR)/fetch_controller_unit $(BUILD_DIR)/fetch_predictor_unit
 	$(BUILD_DIR)/decompress_unit
 	$(BUILD_DIR)/ras_unit
 	$(BUILD_DIR)/btb_unit
@@ -74,6 +74,7 @@ frontend-unit: $(BUILD_DIR)/decompress_unit $(BUILD_DIR)/ras_unit $(BUILD_DIR)/b
 	$(BUILD_DIR)/indirect_predictor_unit
 	$(BUILD_DIR)/fetch_align_unit
 	$(BUILD_DIR)/fetch_controller_unit
+	$(BUILD_DIR)/fetch_predictor_unit
 
 $(BUILD_DIR)/alu_unit: $(RTL_FILES) tests/unit/alu_tb.sv
 	mkdir -p $(BUILD_DIR)
@@ -143,6 +144,14 @@ $(BUILD_DIR)/fetch_controller_unit: rtl/frontend/fetch/rv64_fetch_controller.sv 
 	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
 		-Wno-UNUSEDSIGNAL -Wno-SYNCASYNCNET --top-module fetch_controller_tb \
 		-Mdir $(BUILD_DIR)/obj_fetch_controller -o ../fetch_controller_unit $^
+
+$(BUILD_DIR)/fetch_predictor_unit: $(FRONTEND_RTL_FILES) \
+	tests/frontend/fetch/fetch_predictor_tb.sv
+	mkdir -p $(BUILD_DIR)
+	$(VERILATOR) --binary --assert --timing -CFLAGS "-std=c++20 -fcoroutines" -Wall -Wno-fatal -Wno-DECLFILENAME \
+		-Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-BLKSEQ -Wno-SYNCASYNCNET \
+		--top-module fetch_predictor_tb -Mdir $(BUILD_DIR)/obj_fetch_predictor \
+		-o ../fetch_predictor_unit $(FRONTEND_RTL_FILES) tests/frontend/fetch/fetch_predictor_tb.sv
 
 test: validate lint frontend-lint unit
 

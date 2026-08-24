@@ -1,28 +1,28 @@
 {
   "schema_version": 1,
-  "checkpoint_id": "frontend-001b",
-  "checkpoint_ref": "checkpoint/frontend-001b",
+  "checkpoint_id": "frontend-001c-a",
+  "checkpoint_ref": "checkpoint/frontend-001c-a",
   "mode": "accepted",
   "phase": "v0.1.0",
-  "work_packet": "frontend-001b",
+  "work_packet": "frontend-001c-a",
   "owners": [
     "architect_integrator",
     "frontend_worker"
   ],
   "completed": [
-    "Accepted the one-outstanding-window RV64 fetch controller with reset-safe handshakes, stable backpressure behavior, flush-over-redirect recovery, stale-response draining, buffered-window assertions, 538 independent-model checks, locked Nix smoke, and independent verification review."
+    "Accepted metadata-correct fetch/predictor integration with oldest-control lane suppression, stable registered packet metadata, retirement-only BTB/TAGE training, compatible-kind checks, atomic response completeness, recovery handling, 46 integration checks, locked Nix smoke, and independent verification READY."
   ],
   "next_actions": [
-    "Integrate BTB, TAGE-lite, 32-entry indirect prediction, RAS, and speculative-history recovery metadata.",
-    "Compose the fetch controller, aligner, decompressor, and predictor blocks behind the frozen two-wide frontend packet interface.",
-    "Close recovery, backpressure, and prediction assertions plus independent review before the v0.1.0 milestone gate."
+    "Complete frontend-001c-b indirect-confidence training and target-selection tests.",
+    "Complete destructive RAS snapshot recovery and call/return/coroutine integration tests.",
+    "Complete dual-lane speculative-history advancement/recovery reference tests before the v0.1.0 milestone gate."
   ],
   "blockers": [],
   "tests": {
     "make smoke": {
       "status": "pass",
-      "log": ".continuity/checkpoints/frontend-001b.smoke.log",
-      "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
+      "log": ".continuity/checkpoints/frontend-001c-a.smoke.log",
+      "sha256": "fc967b101048d16af1e3538bfecde3be6ba2db50e3059323ca6681a8a3a80b24"
     },
     "fresh-task recovery smoke": {
       "status": "pass",
@@ -83,6 +83,33 @@
       "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50",
       "total_unit_checks": 93085,
       "fetch_controller_checks": 538,
+      "verilator": "5.018",
+      "yosys": "0.46",
+      "independent_review": "ready"
+    },
+    "frontend-001b pinned Nix CI smoke": {
+      "status": "pass",
+      "run_id": 32714765177,
+      "job_id": 97393554168,
+      "record": ".continuity/ci/frontend-001b-32714765177.json",
+      "sha256": "acf88524b90ef8f2eda0087b8d73bc65ff516f6874991ed2bf95304fb72dfd83",
+      "commit": "42be174fbb3e90523636f784dfdde5462e68af83",
+      "total_unit_checks": 93085
+    },
+    "frontend-001c-a focused host test": {
+      "status": "pass",
+      "command": "make BUILD_DIR=build/frontend-001c-a-review2 build/frontend-001c-a-review2/fetch_predictor_unit && build/frontend-001c-a-review2/fetch_predictor_unit",
+      "verilator": "5.050",
+      "fetch_predictor_checks": 46,
+      "independent_review": "ready"
+    },
+    "frontend-001c-a pinned Nix smoke": {
+      "status": "pass",
+      "command": "make nix-smoke",
+      "record": ".continuity/local/frontend-001c-a-nix-smoke.json",
+      "sha256": "08e3c8a0450c7a9134f825de4960ea0091f02cdb7ac1ffd3f56a88eadb28050d",
+      "total_unit_checks": 93131,
+      "fetch_predictor_checks": 46,
       "verilator": "5.018",
       "yosys": "0.46",
       "independent_review": "ready"
@@ -147,10 +174,28 @@
       "sha256": "214c51bf309401755d09ba3b85866a8f6c287df34780c3d152bd48078a768a50"
     },
     {
+      "id": "frontend-001b-32714765177",
+      "status": "pass",
+      "record": ".continuity/ci/frontend-001b-32714765177.json",
+      "sha256": "acf88524b90ef8f2eda0087b8d73bc65ff516f6874991ed2bf95304fb72dfd83"
+    },
+    {
       "id": "frontend-001b-smoke",
       "status": "pass",
       "log": ".continuity/checkpoints/frontend-001b.smoke.log",
       "sha256": "0589ff5cd377f3f931472aaef5fb9e5ebf3b7ed33f834536cb44e36e80b258ac"
+    },
+    {
+      "id": "frontend-001c-a-nix-smoke",
+      "status": "pass",
+      "record": ".continuity/local/frontend-001c-a-nix-smoke.json",
+      "sha256": "08e3c8a0450c7a9134f825de4960ea0091f02cdb7ac1ffd3f56a88eadb28050d"
+    },
+    {
+      "id": "frontend-001c-a-smoke",
+      "status": "pass",
+      "log": ".continuity/checkpoints/frontend-001c-a.smoke.log",
+      "sha256": "fc967b101048d16af1e3538bfecde3be6ba2db50e3059323ca6681a8a3a80b24"
     }
   ],
   "artifacts": [
@@ -195,6 +240,11 @@
       "source": "locked rootless Podman Nix smoke and independent verification review"
     },
     {
+      "path": ".continuity/ci/frontend-001b-32714765177.json",
+      "sha256": "acf88524b90ef8f2eda0087b8d73bc65ff516f6874991ed2bf95304fb72dfd83",
+      "source": "GitHub Actions run 32714765177 on checkpoint/frontend-001b"
+    },
+    {
       "path": "rtl/frontend/fetch/rv64_fetch_controller.sv",
       "sha256": "0939f609b73f60a14711ab90b9e084be7dc4bb083836048deaef309f5f4daec0",
       "source": "frontend-001b reviewed RTL"
@@ -203,6 +253,21 @@
       "path": "tests/frontend/fetch/fetch_controller_tb.sv",
       "sha256": "cecb61f5840e2ecf6beb15e49520b9e303b919fe88d8704ae647f45d9e165577",
       "source": "frontend-001b independent model and directed test"
+    },
+    {
+      "path": ".continuity/local/frontend-001c-a-nix-smoke.json",
+      "sha256": "08e3c8a0450c7a9134f825de4960ea0091f02cdb7ac1ffd3f56a88eadb28050d",
+      "source": "locked rootless Podman Nix smoke and independent verification review"
+    },
+    {
+      "path": "rtl/frontend/fetch/rv64_fetch_predictor.sv",
+      "sha256": "19740077897537973f0dbb0389d4cc48d43cab341cdfce3bd6f75e8e943166f6",
+      "source": "frontend-001c-a reviewed RTL"
+    },
+    {
+      "path": "tests/frontend/fetch/fetch_predictor_tb.sv",
+      "sha256": "ae5e839ecc79dbb28c422352e64a986d7b5a4704e816a92604afffc3d8972032",
+      "source": "frontend-001c-a directed integration test"
     }
   ]
 }

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "frontend-001c-a-nix-smoke",
+  "provider": "local-rootless-podman",
+  "command": "make nix-smoke",
+  "completed_at": "2026-08-24T10:40:08Z",
+  "status": "pass",
+  "environment": {
+    "host_distribution": "Bazzite",
+    "root_filesystem": "read-only composefs",
+    "runtime": "rootless podman",
+    "image": "docker.io/nixos/nix@sha256:617d914dba5384bf75adf17081583b69371031ec7defce36c34c5fa14fc819b0",
+    "image_id": "98edc6813218e179ce84587373e0b52d4aa58babae2d26b51fb01e7fdacf815f",
+    "store_volume": "codex-rv64-nix-store",
+    "source_mount": "read-only",
+    "pull_policy": "never"
+  },
+  "tools": {
+    "nix": "2.35.2",
+    "verilator": "5.018",
+    "yosys": "0.46 (e97731b9dda91fa5fa53ed87df7c34163ba59a41)",
+    "sv2v": "0.0.13"
+  },
+  "locked_inputs": {
+    "flake_lock_sha256": "ba5f53c350464a8b48464b0ce6297f1846ca3b051ab96040b49a0d608d7573aa",
+    "dependency_lock_sha256": "b73ff1d8370227279402899dbb186e92a206fea8b75aac7d76f15eba557cb687",
+    "lock_updates_allowed": false,
+    "flake_config_accepted": true
+  },
+  "checks": {
+    "project_control_validation": "pass",
+    "rtl_lint": "pass",
+    "generic_synthesis": "pass",
+    "frontend_synthesis": "pass",
+    "unit": {
+      "status": "pass",
+      "total_checks": 93131,
+      "decompressor_checks": 65584,
+      "ras_checks": 10,
+      "btb_checks": 6,
+      "speculative_history_checks": 9,
+      "tage_lite_checks": 17,
+      "indirect_predictor_checks": 18,
+      "fetch_align_checks": 26768,
+      "fetch_controller_checks": 538,
+      "fetch_predictor_checks": 46,
+      "alu_checks": 50,
+      "decoder_vectors": 85
+    }
+  },
+  "resolved_findings": [
+    "The first locked run rejected a Verilator 5.018 UNOPTFLAT dependency between BTB results and selected_pc classification.",
+    "BTB-kind matching was isolated in a separate combinational process; the rerun passed without a warning waiver."
+  ],
+  "artifacts": {
+    "rtl/frontend/fetch/rv64_fetch_predictor.sv": "19740077897537973f0dbb0389d4cc48d43cab341cdfce3bd6f75e8e943166f6",
+    "tests/frontend/fetch/fetch_predictor_tb.sv": "ae5e839ecc79dbb28c422352e64a986d7b5a4704e816a92604afffc3d8972032",
+    "docs/frontend-interface.md": "89f57178b79779dd2c340ddf26595fbe89cbbba5f588efec2491c47e5dbca2ec",
+    "Makefile": "86b1178d107525b4988c2a55ab6964f432ef22dec0bfdf21ffa526fdbac0599b"
+  },
+  "review": {
+    "role": "verification-reviewer",
+    "agent_id": "01a03342-5a5d-75f3-a366-12772b2e98fe",
+    "status": "ready",
+    "initial_blockers": 7,
+    "resolved_blockers": 7,
+    "independent_checks": 46,
+    "scope": "lane suppression, packet stability, metadata validity, BTB kind matching, retirement training, atomic response completeness, and recovery"
+  }
+}
